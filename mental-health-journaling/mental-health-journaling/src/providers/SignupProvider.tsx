@@ -1,9 +1,12 @@
 import { createContext, useContext, useState } from "react";
 
+export type TipoUsuario = "personal" | "profesional";
+
 type SignupData = {
   email: string;
   password: string;
   nombre: string;
+  tipoUsuario: TipoUsuario | null;
 };
 
 type SignupContextType = {
@@ -16,6 +19,7 @@ const initialData: SignupData = {
   email: "",
   password: "",
   nombre: "",
+  tipoUsuario: null,
 };
 
 const SignupContext = createContext<SignupContextType | undefined>(undefined);

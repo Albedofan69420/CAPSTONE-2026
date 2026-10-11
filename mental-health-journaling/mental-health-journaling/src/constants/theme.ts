@@ -14,6 +14,11 @@ export const Colors = {
     backgroundElement: '#F0F0F3',
     backgroundSelected: '#E0E1E6',
     textSecondary: '#60646C',
+    //Paleta de colores de la app, pueden cambiarla en cualquier momento según se estime necesario
+    accent: '#6F8064',
+    accentText: '#FFFFFF',
+    border: '#CBD5D0',
+    error: '#B3261E',
   },
   dark: {
     text: '#ffffff',
@@ -21,6 +26,11 @@ export const Colors = {
     backgroundElement: '#212225',
     backgroundSelected: '#2E3135',
     textSecondary: '#B0B4BA',
+    //Paleta de colores de la app, pueden cambiarla en cualquier momento según se estime necesario
+    accent: '#4FB596',
+    accentText: '#06241B',
+    border: '#2B3A34',
+    error: '#F2B8B5',
   },
 } as const;
 

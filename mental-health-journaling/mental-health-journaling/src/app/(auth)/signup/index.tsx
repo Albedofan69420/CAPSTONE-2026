@@ -19,6 +19,11 @@ export default function Signup() {
 
     setError(null);
     router.push("/signup/signup-info");
+
+    if (data.tipoUsuario === "profesional") {
+    router.push("/(auth)/signup/singup-professional");
+  }
+
   };
 
   return (

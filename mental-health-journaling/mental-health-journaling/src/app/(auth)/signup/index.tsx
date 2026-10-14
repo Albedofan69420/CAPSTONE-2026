@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { OptionSelector } from "@/components/option-selector";
 import { useTheme } from "@/hooks/use-theme";
 import { useSignup, TipoUsuario } from "@/providers/SignupProvider";
+import { authStyles as s } from "@/constants/auth-styles";
 
 export default function Signup() {
   const c = useTheme();
@@ -27,10 +28,10 @@ export default function Signup() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: c.background }]}>
-      <View style={styles.form}>
-        <Text style={[styles.title, { color: c.text }]}>Registrate</Text>
-        <Text style={[styles.subtitle, { color: c.textSecondary }]}>
+    <View style={[s.container, { backgroundColor: c.background }]}>
+      <View style={s.form}>
+        <Text style={[s.title, { color: c.text }]}>Registrate</Text>
+        <Text style={[s.subtitle, { color: c.textSecondary }]}>
           Selecciona el tipo de uso que le darás a la aplicación.
         </Text>
 
@@ -47,26 +48,26 @@ export default function Signup() {
         />
 
         {error && (
-          <Text style={[styles.error, { color: c.error }]} accessibilityRole="alert">
+          <Text style={[s.error, { color: c.error }]} accessibilityRole="alert">
             {error}
           </Text>
         )}
 
         <Pressable
           style={({ pressed }) => [
-            styles.button,
+            s.button,
             { backgroundColor: c.accent },
             pressed && { opacity: 0.8 },
           ]}
           onPress={handleNext}
           accessibilityRole="button"
         >
-          <Text style={[styles.buttonText, { color: c.accentText }]}>
+          <Text style={[s.buttonText, { color: c.accentText }]}>
             Siguiente
           </Text>
         </Pressable>
 
-        <View style={styles.footer}>
+        <View style={s.footer}>
           <Text style={{ color: c.textSecondary }}>¿Ya tienes una cuenta? </Text>
           <Link href="/signin" style={{ color: c.accent, fontWeight: "600" }}>
             Inicia sesión
@@ -76,44 +77,3 @@ export default function Signup() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-  },
-  form: {
-    width: "100%",
-    maxWidth: 420,
-    alignSelf: "center",
-    gap: 16,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "700",
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  error: {
-    fontSize: 14,
-  },
-  button: {
-    height: 48,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 4,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 8,
-  },
-});

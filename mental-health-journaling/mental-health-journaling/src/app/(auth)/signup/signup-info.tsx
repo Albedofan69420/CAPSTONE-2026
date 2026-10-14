@@ -3,6 +3,7 @@ import { Link, router } from "expo-router";
 import { Pressable, StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 
 import { useTheme } from "@/hooks/use-theme";
+import { authStyles as s } from "@/constants/auth-styles";
 
 export default function Signup() {
     const c = useTheme();
@@ -24,20 +25,20 @@ export default function Signup() {
 
     return (
         <KeyboardAvoidingView
-              style={[styles.container, { backgroundColor: c.background }]}
+              style={[s.container, { backgroundColor: c.background }]}
               behavior={Platform.OS === "ios" ? "padding" : undefined}
             >
-              <View style={styles.form}>
-                <Text style={[styles.title, { color: c.text }]}>Registrate</Text>
-                <Text style={[styles.subtitle, { color: c.textSecondary }]}>
+              <View style={s.form}>
+                <Text style={[s.title, { color: c.text }]}>Registrate</Text>
+                <Text style={[s.subtitle, { color: c.textSecondary }]}>
                   Rellena los campos para crear tu cuenta.
                 </Text>
 
-                <View style={styles.field}>
-                    <Text style={[styles.label, { color: c.text }]}>Nombre</Text>
+                <View style={s.field}>
+                    <Text style={[s.label, { color: c.text }]}>Nombre</Text>
                     <TextInput
                       style={[
-                        styles.input,
+                        s.input,
                         { backgroundColor: c.backgroundElement, borderColor: c.border, color: c.text },
                       ]}
                       value={name}
@@ -49,11 +50,11 @@ export default function Signup() {
                     />
                 </View>
 
-                <View style={styles.field}>
-                    <Text style={[styles.label, { color: c.text }]}>Apellido</Text>
+                <View style={s.field}>
+                    <Text style={[s.label, { color: c.text }]}>Apellido</Text>
                     <TextInput
                       style={[
-                        styles.input,
+                        s.input,
                         { backgroundColor: c.backgroundElement, borderColor: c.border, color: c.text },
                       ]}
                       value={lastName}
@@ -65,11 +66,11 @@ export default function Signup() {
                     />
                 </View>
         
-                <View style={styles.field}>
-                  <Text style={[styles.label, { color: c.text }]}>Correo</Text>
+                <View style={s.field}>
+                  <Text style={[s.label, { color: c.text }]}>Correo</Text>
                   <TextInput
                     style={[
-                      styles.input,
+                      s.input,
                       { backgroundColor: c.backgroundElement, borderColor: c.border, color: c.text },
                     ]}
                     value={email}
@@ -84,14 +85,14 @@ export default function Signup() {
                   />
                 </View>
         
-                <View style={styles.field}>
-                  <Text style={[styles.label, { color: c.text }]}>Contraseña</Text>
+                <View style={s.field}>
+                  <Text style={[s.label, { color: c.text }]}>Contraseña</Text>
                   <View>
                     <TextInput
                       ref={passwordRef}
                       style={[
-                        styles.input,
-                        styles.passwordInput,
+                        s.input,
+                        s.passwordInput,
                         { backgroundColor: c.backgroundElement, borderColor: c.border, color: c.text },
                       ]}
                       value={password}
@@ -105,7 +106,7 @@ export default function Signup() {
                       onSubmitEditing={handleSignUp}
                     />
                     <Pressable
-                      style={styles.toggle}
+                      style={s.toggle}
                       onPress={() => setShowPassword((v) => !v)}
                       accessibilityRole="button"
                       accessibilityLabel={
@@ -121,14 +122,14 @@ export default function Signup() {
                 </View>
         
                 {error && (
-                  <Text style={[styles.error, { color: c.error }]} accessibilityRole="alert">
+                  <Text style={[s.error, { color: c.error }]} accessibilityRole="alert">
                     {error}
                   </Text>
                 )}
         
                 <Pressable
                   style={({ pressed }) => [
-                    styles.button,
+                    s.button,
                     { backgroundColor: c.accent },
                     (pressed || loading) && { opacity: 0.8 },
                   ]}
@@ -139,7 +140,7 @@ export default function Signup() {
                   {loading ? (
                     <ActivityIndicator color={c.accentText} />
                   ) : (
-                    <Text style={[styles.buttonText, { color: c.accentText }]}>
+                    <Text style={[s.buttonText, { color: c.accentText }]}>
                       Siguiente
                     </Text>
                   )}
@@ -149,67 +150,3 @@ export default function Signup() {
             </KeyboardAvoidingView>
     )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-  },
-  form: {
-    width: "100%",
-    maxWidth: 420,
-    alignSelf: "center",
-    gap: 16,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "700",
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 8,
-  },field: {
-    gap: 6,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  error: {
-    fontSize: 14,
-  },
-  input: {
-    height: 48,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    fontSize: 16,
-  },
-  passwordInput: {
-    paddingRight: 84,
-  },
-  toggle: {
-    position: "absolute",
-    right: 14,
-    top: 0,
-    bottom: 0,
-    justifyContent: "center",
-  },
-  button: {
-    height: 48,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 4,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 8,
-  },
-});

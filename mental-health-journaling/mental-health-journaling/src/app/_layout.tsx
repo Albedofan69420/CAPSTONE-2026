@@ -9,12 +9,13 @@ SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
   const { session, loading } = useAuth();
+  const SKIP_AUTH = true; //Quitar skip en caso de que se quiera visualizar el registro e inicio de sesión.
 
   if (loading) return null;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!!session}>
+      <Stack.Protected guard={!!session || SKIP_AUTH}> 
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
 

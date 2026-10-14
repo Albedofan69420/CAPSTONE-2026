@@ -4,6 +4,7 @@ import { Link } from "expo-router";
 
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/hooks/use-theme";
+import { authStyles as s } from "@/constants/auth-styles";
 
 export default function SignIn() {
   const c = useTheme();
@@ -41,20 +42,20 @@ export default function SignIn() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: c.background }]}
+      style={[s.container, { backgroundColor: c.background }]}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <View style={styles.form}>
-        <Text style={[styles.title, { color: c.text }]}>Inicia sesión</Text>
-        <Text style={[styles.subtitle, { color: c.textSecondary }]}>
+      <View style={s.form}>
+        <Text style={[s.title, { color: c.text }]}>Inicia sesión</Text>
+        <Text style={[s.subtitle, { color: c.textSecondary }]}>
           Usa tu correo y contraseña para entrar.
         </Text>
 
-        <View style={styles.field}>
-          <Text style={[styles.label, { color: c.text }]}>Correo</Text>
+        <View style={s.field}>
+          <Text style={[s.label, { color: c.text }]}>Correo</Text>
           <TextInput
             style={[
-              styles.input,
+              s.input,
               { backgroundColor: c.backgroundElement, borderColor: c.border, color: c.text },
             ]}
             value={email}
@@ -69,14 +70,14 @@ export default function SignIn() {
           />
         </View>
 
-        <View style={styles.field}>
-          <Text style={[styles.label, { color: c.text }]}>Contraseña</Text>
+        <View style={s.field}>
+          <Text style={[s.label, { color: c.text }]}>Contraseña</Text>
           <View>
             <TextInput
               ref={passwordRef}
               style={[
-                styles.input,
-                styles.passwordInput,
+                s.input,
+                s.passwordInput,
                 { backgroundColor: c.backgroundElement, borderColor: c.border, color: c.text },
               ]}
               value={password}
@@ -90,7 +91,7 @@ export default function SignIn() {
               onSubmitEditing={handleSignIn}
             />
             <Pressable
-              style={styles.toggle}
+              style={s.toggle}
               onPress={() => setShowPassword((v) => !v)}
               accessibilityRole="button"
               accessibilityLabel={
@@ -106,14 +107,14 @@ export default function SignIn() {
         </View>
 
         {error && (
-          <Text style={[styles.error, { color: c.error }]} accessibilityRole="alert">
+          <Text style={[s.error, { color: c.error }]} accessibilityRole="alert">
             {error}
           </Text>
         )}
 
         <Pressable
           style={({ pressed }) => [
-            styles.button,
+            s.button,
             { backgroundColor: c.accent },
             (pressed || loading) && { opacity: 0.8 },
           ]}
@@ -124,13 +125,13 @@ export default function SignIn() {
           {loading ? (
             <ActivityIndicator color={c.accentText} />
           ) : (
-            <Text style={[styles.buttonText, { color: c.accentText }]}>
+            <Text style={[s.buttonText, { color: c.accentText }]}>
               Iniciar sesión
             </Text>
           )}
         </Pressable>
 
-        <View style={styles.footer}>
+        <View style={s.footer}>
           <Text style={{ color: c.textSecondary }}>¿No tienes cuenta? </Text>
           <Link href="/signup" style={{ color: c.accent, fontWeight: "600" }}>
             Regístrate
@@ -140,68 +141,3 @@ export default function SignIn() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-  },
-  form: {
-    width: "100%",
-    maxWidth: 420,
-    alignSelf: "center",
-    gap: 16,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "700",
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  field: {
-    gap: 6,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  input: {
-    height: 48,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    fontSize: 16,
-  },
-  passwordInput: {
-    paddingRight: 84,
-  },
-  toggle: {
-    position: "absolute",
-    right: 14,
-    top: 0,
-    bottom: 0,
-    justifyContent: "center",
-  },
-  error: {
-    fontSize: 14,
-  },
-  button: {
-    height: 48,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 4,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 8,
-  },
-});

@@ -3,6 +3,7 @@ import { Link, router } from "expo-router";
 import { ActivityIndicator, KeyboardAvoidingView, NativeSyntheticEvent, Platform, Pressable, StyleSheet, Text, TextInput, TextInputKeyPressEventData, View,} from "react-native";
 
 import { useTheme } from "@/hooks/use-theme";
+import { authStyles as s } from "@/constants/auth-styles";
 
 const DIGITS = 4;
 
@@ -17,7 +18,7 @@ export default function Signup() {
     const [error, setError] = useState<string | null>(null);
 
     const handleSignUp = () => {
-      router.push("/signup/signup-pin");
+      router.replace("/");
     };
 
     const handleChange = (index: number, text: string) => {
@@ -46,18 +47,18 @@ export default function Signup() {
 
     return (
         <KeyboardAvoidingView
-              style={[styles.container, { backgroundColor: c.background }]}
+              style={[s.container, { backgroundColor: c.background }]}
               behavior={Platform.OS === "ios" ? "padding" : undefined}
             >
-              <View style={styles.form}>
-                <Text style={[styles.title, { color: c.text }]}>Registrate</Text>
-                <Text style={[styles.subtitle, { color: c.textSecondary }]}>
+              <View style={s.form}>
+                <Text style={[s.title, { color: c.text }]}>Registrate</Text>
+                <Text style={[s.subtitle, { color: c.textSecondary }]}>
                   Crea una clave de seguridad para acceder a la aplicación.
                 </Text>
 
-                <View style={styles.field}>
-                  <Text style={[styles.label, { color: c.text }]}>Contraseña</Text>
-                  <View style={styles.row}>
+                <View style={s.field}>
+                  <Text style={[s.label, { color: c.text }]}>Contraseña</Text>
+                  <View style={s.row}>
                     {digits.map((digit, index) => (
                       <TextInput
                         key={index}
@@ -65,7 +66,7 @@ export default function Signup() {
                           inputs.current[index] = el;
                         }}
                         style={[
-                          styles.box,
+                          s.box,
                           {
                             backgroundColor: c.backgroundElement,
                             borderColor: focused === index ? c.accent : c.border,
@@ -91,14 +92,14 @@ export default function Signup() {
                 </View>
 
                 {error && (
-                  <Text style={[styles.error, { color: c.error }]} accessibilityRole="alert">
+                  <Text style={[s.error, { color: c.error }]} accessibilityRole="alert">
                     {error}
                   </Text>
                 )}
 
                 <Pressable
                   style={({ pressed }) => [
-                    styles.button,
+                    s.button,
                     { backgroundColor: c.accent },
                     (pressed || loading) && { opacity: 0.8 },
                   ]}
@@ -109,7 +110,7 @@ export default function Signup() {
                   {loading ? (
                     <ActivityIndicator color={c.accentText} />
                   ) : (
-                    <Text style={[styles.buttonText, { color: c.accentText }]}>
+                    <Text style={[s.buttonText, { color: c.accentText }]}>
                       Registrarse
                     </Text>
                   )}
@@ -119,65 +120,3 @@ export default function Signup() {
             </KeyboardAvoidingView>
     )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-  },
-  form: {
-    width: "100%",
-    maxWidth: 420,
-    alignSelf: "center",
-    gap: 16,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "700",
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  field: {
-    gap: 6,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 12,
-  },
-  box: {
-    flex: 1,
-    maxWidth: 76,
-    aspectRatio: 1,
-    borderWidth: 1.5,
-    borderRadius: 12,
-    fontSize: 26,
-    fontWeight: "700",
-  },
-  error: {
-    fontSize: 14,
-  },
-  button: {
-    height: 48,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 4,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 8,
-  },
-});

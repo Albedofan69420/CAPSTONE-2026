@@ -1,75 +1,98 @@
-import { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  Alert,
-  ScrollView,
-} from 'react-native';
-import { router } from 'expo-router';
+import { useRef, useState } from "react";
+import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { router } from "expo-router";
+
+import { useTheme } from "@/hooks/use-theme";
+import { authStyles as s } from "@/constants/auth-styles";
 
 export default function ProfesionalScreen() {
-  const [run, setRun] = useState('');
-  const [registro, setRegistro] = useState('');
+  const c = useTheme();
+
+  const registroRef = useRef<TextInput>(null);
+  const [run, setRun] = useState("");
+  const [registro, setRegistro] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   function continuar() {
     if (!run.trim() || !registro.trim()) {
-      Alert.alert(
-        'Campos obligatorios',
-        'Ingresa tu RUN y número de registro profesional.'
-      );
+      setError("Ingresa tu RUN y número de registro profesional.");
       return;
     }
 
+    setError(null);
+
     // Guardaremos los datos y avanzaremos
     // al siguiente paso del registro.
-    router.push('/(auth)/signup/signup-info');
+    router.push("/(auth)/signup/signup-info");
   }
 
   return (
     <ScrollView
-      contentContainerStyle={styles.container}
+      style={{ backgroundColor: c.background }}
+      contentContainerStyle={s.container}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={styles.card}>
-        <Text style={styles.title}>
+      <View style={s.form}>
+        <Text style={[s.title, { color: c.text }]}>
           Confirmación de identidad
         </Text>
 
-        <Text style={styles.subtitle}>
+        <Text style={[s.subtitle, { color: c.textSecondary }]}>
           Verificaremos tu identidad en el sistema
         </Text>
 
-        <View style={styles.form}>
-          <Text style={styles.label}>RUN</Text>
+        <View style={s.field}>
+          <Text style={[s.label, { color: c.text }]}>RUN</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              s.input,
+              { backgroundColor: c.backgroundElement, borderColor: c.border, color: c.text },
+            ]}
             placeholder="Ej.: 12.345.678-9"
-            placeholderTextColor="#7A7A7A"
+            placeholderTextColor={c.textSecondary}
             value={run}
             onChangeText={setRun}
             autoCapitalize="characters"
-          />
-
-          <Text style={styles.label}>
-            Número de registro profesional
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ingresa tu registro"
-            placeholderTextColor="#7A7A7A"
-            value={registro}
-            onChangeText={setRegistro}
+            returnKeyType="next"
+            onSubmitEditing={() => registroRef.current?.focus()}
           />
         </View>
 
+        <View style={s.field}>
+          <Text style={[s.label, { color: c.text }]}>
+            Número de registro profesional
+          </Text>
+          <TextInput
+            ref={registroRef}
+            style={[
+              s.input,
+              { backgroundColor: c.backgroundElement, borderColor: c.border, color: c.text },
+            ]}
+            placeholder="Ingresa tu registro"
+            placeholderTextColor={c.textSecondary}
+            value={registro}
+            onChangeText={setRegistro}
+            returnKeyType="done"
+            onSubmitEditing={continuar}
+          />
+        </View>
+
+        {error && (
+          <Text style={[s.error, { color: c.error }]} accessibilityRole="alert">
+            {error}
+          </Text>
+        )}
+
         <Pressable
-          style={styles.button}
+          style={({ pressed }) => [
+            s.button,
+            { backgroundColor: c.accent },
+            pressed && { opacity: 0.8 },
+          ]}
           onPress={continuar}
+          accessibilityRole="button"
         >
-          <Text style={styles.buttonText}>
+          <Text style={[s.buttonText, { color: c.accentText }]}>
             Siguiente
           </Text>
         </Pressable>
@@ -77,62 +100,3 @@ export default function ProfesionalScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    backgroundColor: '#000000',
-    padding: 24,
-    justifyContent: 'center',
-  },
-  card: {
-    width: '100%',
-    maxWidth: 480,
-    alignSelf: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#B0B0B0',
-    textAlign: 'center',
-    marginBottom: 28,
-  },
-  form: {
-    gap: 6,
-  },
-  label: {
-    fontSize: 13,
-    color: '#B0B0B0',
-    marginTop: 4,
-    marginBottom: 6,
-  },
-  input: {
-    height: 48,
-    borderWidth: 1.5,
-    borderColor: '#2A2A2C',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 15,
-    color: '#FFFFFF',
-    backgroundColor: '#1C1C1E',
-    marginBottom: 16,
-  },
-  button: {
-    backgroundColor: '#4DB6A0',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonText: {
-    color: '#0B0B0B',
-    fontWeight: '800',
-    fontSize: 15,
-  },
-});

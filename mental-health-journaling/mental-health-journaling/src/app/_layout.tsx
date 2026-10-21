@@ -35,6 +35,7 @@ function RootNavigator() {
 
       <Stack.Protected guard={isReady}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="journal" />
       </Stack.Protected>
     </Stack>
   );

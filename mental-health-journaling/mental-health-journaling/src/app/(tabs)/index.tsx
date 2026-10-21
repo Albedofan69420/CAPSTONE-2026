@@ -5,12 +5,20 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { WeekStrip } from "@/components/week-strip";
 import { useTheme } from "@/hooks/use-theme";
 
+import { router } from "expo-router";
+import { aYMD } from "@/components/week-strip";
+
 export default function Inicio() {
   const c = useTheme();
   const [fecha, setFecha] = useState(new Date());
 
   const registrarEnDiario = () => {
-    // Aquí irá la navegación a la pantalla de registro, enviando la fecha elegida.
+    router.push({
+      pathname: "/journal",
+      params: {
+        fecha: aYMD(fecha),
+      },
+    });
   };
 
   return (

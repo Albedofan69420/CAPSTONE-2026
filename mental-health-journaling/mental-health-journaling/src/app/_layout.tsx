@@ -1,26 +1,40 @@
-import { DarkTheme, DefaultTheme, ThemeProvider, Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { DarkTheme, DefaultTheme, ThemeProvider, Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useColorScheme } from "react-native";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AuthProvider, { useAuth } from '@/providers/AuthProvider';
+import { AnimatedSplashOverlay } from "@/components/animated-icon";
+import AuthProvider, { useAuth } from "@/providers/AuthProvider";
 
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  const { session, loading } = useAuth();
-  const SKIP_AUTH = true; //Quitar skip en caso de que se quiera visualizar el registro e inicio de sesión.
+  const { session, loading, hasPin, locked } = useAuth();
 
-  if (loading) return null;
+  console.log("AUTH STATE", { session: !!session, hasPin, locked, loading });
+
+  //Espera para ver si hay una sesión y un pin creado
+  if (loading || (session && hasPin === null)) return null;
+
+  const needsPin = !!session && hasPin === false;
+  const isLocked = !!session && hasPin === true && locked;
+  const isReady = !!session && hasPin === true && !locked;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!!session || SKIP_AUTH}> 
-        <Stack.Screen name="(tabs)" />
+      <Stack.Protected guard={!session}>
+        <Stack.Screen name="(auth)" />
       </Stack.Protected>
 
-      <Stack.Protected guard={!session}>
-        <Stack.Screen name="signin" />
+      <Stack.Protected guard={needsPin}>
+        <Stack.Screen name="create-pin" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={isLocked}>
+        <Stack.Screen name="unlock" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={isReady}>
+        <Stack.Screen name="(tabs)" />
       </Stack.Protected>
     </Stack>
   );
@@ -30,7 +44,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AuthProvider>
         <AnimatedSplashOverlay />
         <RootNavigator />

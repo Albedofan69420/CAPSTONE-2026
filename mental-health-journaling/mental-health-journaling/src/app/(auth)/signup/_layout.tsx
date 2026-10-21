@@ -8,7 +8,6 @@ export default function SignupLayout() {
         <Stack screenOptions={{ headerShown: false, title: 'Crear cuenta' }}>
         <Stack.Screen name="index" options={{ title: 'Selección de tipo de usuario' }} />
         <Stack.Screen name="signup-info" options={{ title: 'Registro de información personal' }} />
-        <Stack.Screen name="signup-pin" options={{ title: 'Registro de clave secreta' }} />
         <Stack.Screen name="signup-professional" options={{ title: 'Registro de profesional' }} />
         </Stack>
     </SignupProvider>

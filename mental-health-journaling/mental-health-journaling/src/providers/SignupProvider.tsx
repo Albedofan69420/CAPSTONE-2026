@@ -6,6 +6,7 @@ type SignupData = {
   email: string;
   password: string;
   nombre: string;
+  apellido: string;
   tipoUsuario: TipoUsuario | null;
 };
 
@@ -19,6 +20,7 @@ const initialData: SignupData = {
   email: "",
   password: "",
   nombre: "",
+  apellido: "",
   tipoUsuario: null,
 };
 

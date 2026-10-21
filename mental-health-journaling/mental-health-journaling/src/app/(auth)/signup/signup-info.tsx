@@ -1,27 +1,67 @@
 import { useRef, useState } from "react";
 import { Link, router } from "expo-router";
-import { Pressable, StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
+import { supabase } from "@/lib/supabase";
+import { Pressable, Text, TextInput, View, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from "react-native";
 
 import { useTheme } from "@/hooks/use-theme";
 import { authStyles as s } from "@/constants/auth-styles";
+import { useSignup } from "@/providers/SignupProvider";
 
 export default function Signup() {
-    const c = useTheme();
+  const { data, reset } = useSignup();
+  const c = useTheme();
 
-    const [name, setName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
 
-    const passwordRef = useRef<TextInput>(null);
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
+  const passwordRef = useRef<TextInput>(null);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    const handleSignUp = () => {
-      router.push("/signup/signup-pin");
-    };
+  const handleSignUp = async () => {
+  if (!name.trim() || !lastName.trim() || !email.includes("@") || password.length < 6) {
+    setError("Rellena todos los campos. La contraseña debe tener al menos 6 caracteres.");
+    return;
+  }
+
+  setLoading(true);
+  setError(null);
+
+  const { data: result, error: signUpError } = await supabase.auth.signUp({
+    email: email.trim(),
+    password,
+    options: {
+      data: {
+        nombre: name.trim(),
+        apellido: lastName.trim(),
+        tipo_usuario: data.tipoUsuario,
+      },
+    },
+  });
+
+  if (signUpError) {
+    setError(
+      signUpError.message === "User already registered"
+        ? "Ya existe una cuenta con ese correo."
+        : signUpError.message
+    );
+    setLoading(false);
+    return;
+  }
+
+  reset();
+
+  //Con "Confirm email" activo no hay sesión hasta confirmar el correos
+  if (!result.session) {
+    Alert.alert("Revisa tu correo", "Te enviamos un enlace para confirmar tu cuenta.");
+    router.replace("/signin");
+  }
+  //Si hay una sesión lleva al crear pin
+  };
 
     return (
         <KeyboardAvoidingView

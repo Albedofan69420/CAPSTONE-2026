@@ -1,9 +1,12 @@
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, Pressable, ScrollView, Alert } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/use-theme";
 import { useState } from "react";
 import { EmotionSelector, type EmotionId } from "@/components/journal/emotion-selector";
+import { appStyles } from "@/constants/app-styles";
+
+const s = appStyles.journal;
 
 export default function JournalScreen() {
   const c = useTheme();
@@ -53,37 +56,37 @@ export default function JournalScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: c.background }]}>
+    <SafeAreaView style={[s.container, { backgroundColor: c.background }]}>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={s.scrollContent}
       >
 
-        <View style={styles.header}>
+        <View style={s.header}>
           <Pressable onPress={() => router.back()} accessibilityLabel="Cerrar diario">
-            <Text style={[styles.closeButton, { color: c.text }]}>×</Text>
+            <Text style={[s.closeButton, { color: c.text }]}>×</Text>
           </Pressable>
 
-          <Text style={[styles.headerDate, { color: c.text }]}>
+          <Text style={[s.headerDate, { color: c.text }]}>
             {fechaFormateada}
           </Text>
 
-          <View style={styles.headerSpacer} />
+          <View style={s.headerSpacer} />
         </View>
 
-        <View style={styles.emotionSection}>
+        <View style={s.emotionSection}>
           <EmotionSelector value={emotion} onChange={setEmotion} />
         </View>
 
-        <View style={styles.fieldSection}>
-          <Text style={[styles.fieldLabel, { color: c.text }]}>
+        <View style={s.fieldSection}>
+          <Text style={[s.fieldLabel, { color: c.text }]}>
             ¿Por qué me siento así?
           </Text>
 
           <TextInput
-            style={[styles.textArea, { color: c.text, borderColor: c.border }]}
+            style={[s.textArea, { color: c.text, borderColor: c.border }]}
             placeholder="Me siento así porque..."
             placeholderTextColor={c.textSecondary}
             value={reason}
@@ -93,15 +96,15 @@ export default function JournalScreen() {
           />
         </View>
 
-        <View style={styles.row}>
+        <View style={s.row}>
 
-          <View style={styles.column}>
-            <Text style={[styles.fieldLabel, { color: c.text }]}>
+          <View style={s.column}>
+            <Text style={[s.fieldLabel, { color: c.text }]}>
               Cosas buenas del día
             </Text>
 
             <TextInput
-              style={[styles.textArea, { color: c.text, borderColor: c.border }]}
+              style={[s.textArea, { color: c.text, borderColor: c.border }]}
               placeholder="El día de hoy..."
               placeholderTextColor={c.textSecondary}
               value={goodThings}
@@ -111,13 +114,13 @@ export default function JournalScreen() {
             />
           </View>
 
-          <View style={styles.column}>
-            <Text style={[styles.fieldLabel, { color: c.text }]}>
+          <View style={s.column}>
+            <Text style={[s.fieldLabel, { color: c.text }]}>
               Cosas malas del día
             </Text>
 
             <TextInput
-              style={[styles.textArea, { color: c.text, borderColor: c.border }]}
+              style={[s.textArea, { color: c.text, borderColor: c.border }]}
               placeholder="El día de hoy..."
               placeholderTextColor={c.textSecondary}
               value={badThings}
@@ -128,13 +131,13 @@ export default function JournalScreen() {
           </View>
 
         </View>
-        <View style={styles.fieldSection}>
-          <Text style={[styles.fieldLabel, { color: c.text }]}>
+        <View style={s.fieldSection}>
+          <Text style={[s.fieldLabel, { color: c.text }]}>
             ¿Cumplí algún objetivo?
           </Text>
 
           <TextInput
-            style={[styles.textArea, { color: c.text, borderColor: c.border }]}
+            style={[s.textArea, { color: c.text, borderColor: c.border }]}
             placeholder="Hoy logré..."
             placeholderTextColor={c.textSecondary}
             value={achievedGoal}
@@ -144,13 +147,13 @@ export default function JournalScreen() {
           />
         </View>
 
-        <View style={styles.fieldSection}>
-          <Text style={[styles.fieldLabel, { color: c.text }]}>
+        <View style={s.fieldSection}>
+          <Text style={[s.fieldLabel, { color: c.text }]}>
             Cosas en las que me gustaría trabajar
           </Text>
 
           <TextInput
-            style={[styles.textArea, { color: c.text, borderColor: c.border }]}
+            style={[s.textArea, { color: c.text, borderColor: c.border }]}
             placeholder="Me gustaría..."
             placeholderTextColor={c.textSecondary}
             value={improvementAreas}
@@ -160,13 +163,13 @@ export default function JournalScreen() {
           />
         </View>
 
-        <View style={styles.fieldSection}>
-          <Text style={[styles.fieldLabel, { color: c.text }]}>
+        <View style={s.fieldSection}>
+          <Text style={[s.fieldLabel, { color: c.text }]}>
             ¿Cómo puedo trabajar en ello?
           </Text>
 
           <TextInput
-            style={[styles.textArea, { color: c.text, borderColor: c.border }]}
+            style={[s.textArea, { color: c.text, borderColor: c.border }]}
             placeholder="Podría comenzar por..."
             placeholderTextColor={c.textSecondary}
             value={actionPlan}
@@ -178,10 +181,10 @@ export default function JournalScreen() {
 
       </ScrollView>
       <Pressable
-        style={[styles.button, { backgroundColor: c.accent }]}
+        style={[s.button, { backgroundColor: c.accent }]}
         onPress={handleSave}
       >
-        <Text style={[styles.buttonText, { color: c.accentText }]}>
+        <Text style={[s.buttonText, { color: c.accentText }]}>
           Guardar
         </Text>
       </Pressable>
@@ -189,75 +192,3 @@ export default function JournalScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 15,
-  },
-  scrollContent: {
-    gap: 10,
-    paddingBottom: 30,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  closeButton: {
-    fontSize: 30,
-    fontWeight: "400",
-    width: 35,
-    textAlign: "center",
-  },
-  headerDate: {
-    fontSize: 15,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 35,
-  },
-  emotionSection: {
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  fieldSection: {
-    gap: 10,
-    marginTop: 15,
-  },
-  fieldLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  textArea: {
-    minHeight: 110,
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 14,
-  },
-  row: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 15,
-  },
-  column: {
-    flex: 1,
-  },
-  button: {
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});

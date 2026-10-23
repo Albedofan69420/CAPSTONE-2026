@@ -22,7 +22,7 @@ export default function Signup() {
     router.push("/signup/signup-info");
 
     if (data.tipoUsuario === "profesional") {
-    router.push("/(auth)/signup/singup-professional");
+    router.push("/(auth)/signup/signup-professional");
   }
 
   };

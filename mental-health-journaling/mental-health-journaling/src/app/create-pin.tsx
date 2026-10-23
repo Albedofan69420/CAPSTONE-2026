@@ -43,7 +43,7 @@ export default function CrearPin() {
 
     setSaving(true);
     await savePin(session.user.id, pin);
-    // Con el PIN guardado, el layout lleva al usuario a las pestañas
+    //Con el PIN guardado, el layout lleva al usuario a las pestañas de (tabs)
     pinCreated();
   };
 

@@ -10,8 +10,6 @@ SplashScreen.preventAutoHideAsync();
 function RootNavigator() {
   const { session, loading, hasPin, locked } = useAuth();
 
-  console.log("AUTH STATE", { session: !!session, hasPin, locked, loading });
-
   //Espera para ver si hay una sesión y un pin creado
   if (loading || (session && hasPin === null)) return null;
 

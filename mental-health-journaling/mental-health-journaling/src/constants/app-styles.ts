@@ -262,8 +262,8 @@ export const appStyles = {
     },
   }),
 
-  // src/app/professional-profile.tsx
-  professionalProfile: StyleSheet.create({
+  // src/app/professional-details.tsx
+  professionalDetails: StyleSheet.create({
     container: {
       flex: 1,
     },
@@ -820,7 +820,7 @@ export const appStyles = {
     },
   }),
 
-  // src/app/professional-certificates.tsx
+  // src/app/professional/certificates.tsx
   certificados: StyleSheet.create({
     card: {
       borderRadius: 14,

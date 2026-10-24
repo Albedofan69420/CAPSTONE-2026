@@ -32,8 +32,10 @@ function RootNavigator() {
         <Stack.Screen name="(auth)" />
       </Stack.Protected>
 
-      <Stack.Protected guard={needsCertificates}>
-        <Stack.Screen name="professional-certificates" />
+      {/* Vistas del profesional: certificados (antes del PIN) e inicio (después del PIN).
+          professional/_layout.tsx decide cuál de las dos mostrar */}
+      <Stack.Protected guard={needsCertificates || (isReady && isProfessional)}>
+        <Stack.Screen name="professional" />
       </Stack.Protected>
 
       <Stack.Protected guard={needsPin}>
@@ -44,13 +46,9 @@ function RootNavigator() {
         <Stack.Screen name="unlock" />
       </Stack.Protected>
 
-      <Stack.Protected guard={isReady && isProfessional}>
-        <Stack.Screen name="professional-home" />
-      </Stack.Protected>
-
       <Stack.Protected guard={isReady && !isAdmin && !isProfessional}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="professional-profile" />
+        <Stack.Screen name="professional-details" />
         <Stack.Screen name="personal-data" />
         <Stack.Screen name="article" />
         <Stack.Screen name="filters" options={{ presentation: "modal" }} />

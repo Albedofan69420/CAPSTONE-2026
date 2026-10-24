@@ -63,7 +63,7 @@ export default function Profesionales() {
               pressed && { opacity: 0.8 },
             ]}
             onPress={() =>
-              router.push({ pathname: "/professional-profile", params: { id: item.id } })
+              router.push({ pathname: "/professional-details", params: { id: item.id } })
             }
             accessibilityRole="button"
             accessibilityLabel={`Ver perfil de ${item.nombre}, ${item.profesion}`}

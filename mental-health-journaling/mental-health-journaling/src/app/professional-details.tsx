@@ -7,9 +7,9 @@ import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
 import { obtenerProfesional } from "@/lib/profesionales";
 
-const s = appStyles.professionalProfile;
+const s = appStyles.professionalDetails;
 
-export default function ProfessionalProfile() {
+export default function ProfessionalDetails() {
   const c = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const profesional = id ? obtenerProfesional(id) : undefined;

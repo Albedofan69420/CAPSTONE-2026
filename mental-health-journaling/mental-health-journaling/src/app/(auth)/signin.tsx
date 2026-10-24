@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View,} from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View,} from "react-native";
 import { Link } from "expo-router";
 
 import { supabase } from "@/lib/supabase";

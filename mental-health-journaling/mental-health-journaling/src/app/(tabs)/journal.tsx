@@ -2,15 +2,19 @@ import { View, Text, TextInput, Pressable, ScrollView, Alert } from "react-nativ
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/use-theme";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EmotionSelector, type EmotionId } from "@/components/journal/emotion-selector";
 import { appStyles } from "@/constants/app-styles";
+import { guardarRegistro, obtenerRegistro } from "@/lib/diario";
+import { useAuth } from "@/providers/AuthProvider";
 
 const s = appStyles.journal;
 
 export default function JournalScreen() {
   const c = useTheme();
+  const { session } = useAuth();
   const { fecha } = useLocalSearchParams<{ fecha: string }>();
+  const [saving, setSaving] = useState(false);
 
   const [emotion, setEmotion] = useState<EmotionId | null>(null);
   const [reason, setReason] = useState("");
@@ -19,6 +23,34 @@ export default function JournalScreen() {
   const [achievedGoal, setAchievedGoal] = useState("");
   const [improvementAreas, setImprovementAreas] = useState("");
   const [actionPlan, setActionPlan] = useState("");
+
+  // Al estar dentro de (tabs) la pantalla no se desmonta al salir, así que se limpia el
+  // formulario al cambiar de fecha. Si ya hay un registro, se cargan sus datos para editarlos.
+  useEffect(() => {
+    setEmotion(null);
+    setReason("");
+    setGoodThings("");
+    setBadThings("");
+    setAchievedGoal("");
+    setImprovementAreas("");
+    setActionPlan("");
+    setSaving(false);
+
+    if (!session || !fecha) return;
+
+    obtenerRegistro(session.user.id, fecha)
+      .then((registro) => {
+        if (!registro) return;
+        setEmotion(registro.emocion);
+        setReason(registro.motivo);
+        setGoodThings(registro.cosas_buenas);
+        setBadThings(registro.cosas_malas);
+        setAchievedGoal(registro.objetivo_cumplido);
+        setImprovementAreas(registro.areas_mejora);
+        setActionPlan(registro.plan_accion);
+      })
+      .catch((e) => console.log("Error al cargar el registro:", e.message));
+  }, [session, fecha]);
 
   const fechaFormateada = (() => {
     if (!fecha || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return "";
@@ -40,7 +72,7 @@ export default function JournalScreen() {
     }).format(date);
   })();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!emotion) {
       Alert.alert(
         "Emoción requerida",
@@ -49,10 +81,33 @@ export default function JournalScreen() {
       return;
     }
 
+    if (!session || !fechaFormateada || saving) return;
+
+    setSaving(true);
+
+    try {
+      await guardarRegistro(session.user.id, {
+        fecha,
+        emocion: emotion,
+        motivo: reason.trim(),
+        cosas_buenas: goodThings.trim(),
+        cosas_malas: badThings.trim(),
+        objetivo_cumplido: achievedGoal.trim(),
+        areas_mejora: improvementAreas.trim(),
+        plan_accion: actionPlan.trim(),
+      });
+    } catch (e) {
+      Alert.alert("No se pudo guardar", (e as Error).message);
+      setSaving(false);
+      return;
+    }
+
+    setSaving(false);
     Alert.alert(
       "Diario Guardado",
       "Se ha registrado correctamente su diario."
     );
+    router.back();
   };
 
   return (
@@ -181,11 +236,12 @@ export default function JournalScreen() {
 
       </ScrollView>
       <Pressable
-        style={[s.button, { backgroundColor: c.accent }]}
+        style={[s.button, { backgroundColor: c.accent }, saving && { opacity: 0.6 }]}
         onPress={handleSave}
+        disabled={saving}
       >
         <Text style={[s.buttonText, { color: c.accentText }]}>
-          Guardar
+          {saving ? "Guardando..." : "Guardar"}
         </Text>
       </Pressable>
 

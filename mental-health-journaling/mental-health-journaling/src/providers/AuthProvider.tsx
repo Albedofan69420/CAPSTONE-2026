@@ -13,6 +13,9 @@ type AuthData = {
   locked: boolean;
   unlock: () => void;
   pinCreated: () => void;
+  /** true cuando el profesional ya pasó por la pantalla de certificados (subiéndolos o no) */
+  certificatesStepDone: boolean;
+  finishCertificatesStep: () => void;
 };
 
 const AuthContext = createContext<AuthData>({
@@ -22,6 +25,8 @@ const AuthContext = createContext<AuthData>({
   locked: false,
   unlock: () => {},
   pinCreated: () => {},
+  certificatesStepDone: false,
+  finishCertificatesStep: () => {},
 });
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -29,6 +34,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const [session, setSession] = useState<Session | null>(null);
   const [hasPin, setHasPin] = useState<boolean | null>(null);
   const [locked, setLocked] = useState(false);
+  const [certificatesStepDone, setCertificatesStepDone] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -55,6 +61,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         setSession(null);
         setHasPin(null);
         setLocked(false);
+        setCertificatesStepDone(false);
         return;
       }
 
@@ -81,6 +88,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           setHasPin(true);
           setLocked(false);
         },
+        certificatesStepDone,
+        finishCertificatesStep: () => setCertificatesStepDone(true),
       }}
     >
       {children}

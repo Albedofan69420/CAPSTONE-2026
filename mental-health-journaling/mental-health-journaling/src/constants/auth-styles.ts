@@ -10,6 +10,15 @@ export const authStyles = StyleSheet.create({
     justifyContent: "center",
     padding: 24,
   },
+  // Igual que container, para formularios largos dentro de un ScrollView
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    padding: 24,
+  },
+  hint: {
+    fontSize: 13,
+  },
   form: {
     width: "100%",
     maxWidth: 420,

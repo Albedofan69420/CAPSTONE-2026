@@ -67,12 +67,12 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Explorar",
-          tabBarIcon: tabIcon("compass", "compass-outline"),
+          title: "Profesionales",
+          tabBarIcon: tabIcon("search", "search-outline"),
         }}
       />
 
-      {/* Para agregar una pestaña se hace en (tabs) y luego se agrega aquí.
+      {/* Para agregar una pestaña se hace en (tabs) y luego se agrega aquí. */}
       <Tabs.Screen
         name="perfil"
         options={{
@@ -80,14 +80,22 @@ export default function TabsLayout() {
           tabBarIcon: tabIcon("person", "person-outline"),
         }}
       />
-      */}
+
+      {/* Pantalla del diario: no aparece como pestaña y oculta la barra inferior */}
+      <Tabs.Screen
+        name="journal"
+        options={{
+          href: null,
+          tabBarStyle: { display: "none" },
+        }}
+      />
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
   pill: {
-    width: 72,
+    width: 110,
     height: 55,
     borderRadius: 20,
     alignItems: "center",

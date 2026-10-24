@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 import { OptionSelector } from "@/components/option-selector";
 import { useTheme } from "@/hooks/use-theme";
@@ -19,12 +19,11 @@ export default function Signup() {
     }
 
     setError(null);
-    router.push("/signup/signup-info");
-
-    if (data.tipoUsuario === "profesional") {
-    router.push("/(auth)/signup/signup-professional");
-  }
-
+    router.push(
+      data.tipoUsuario === "profesional"
+        ? "/signup/signup-professional"
+        : "/signup/signup-info"
+    );
   };
 
   return (

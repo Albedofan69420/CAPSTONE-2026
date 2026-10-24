@@ -8,12 +8,21 @@ import AuthProvider, { useAuth } from "@/providers/AuthProvider";
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  const { session, loading, hasPin, locked } = useAuth();
+  const { session, loading, hasPin, locked, certificatesStepDone } = useAuth();
 
   //Espera para ver si hay una sesión y un pin creado
   if (loading || (session && hasPin === null)) return null;
 
-  const needsPin = !!session && hasPin === false;
+  // El rol viene de app_metadata, que solo se puede cambiar desde Supabase (ver migraciones)
+  const isAdmin = session?.user.app_metadata.rol === "admin";
+  // El tipo se elige al registrarse. Solo cambia qué vistas se muestran: lo que un profesional
+  // puede hacer frente a los usuarios depende de su verificación en public.profesionales
+  const isProfessional = !isAdmin && session?.user.user_metadata.tipo_usuario === "profesional";
+
+  // Antes de crear el PIN, el profesional pasa por la pantalla de certificados
+  const needsCertificates =
+    !!session && hasPin === false && isProfessional && !certificatesStepDone;
+  const needsPin = !!session && hasPin === false && !needsCertificates;
   const isLocked = !!session && hasPin === true && locked;
   const isReady = !!session && hasPin === true && !locked;
 
@@ -21,6 +30,10 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={needsCertificates}>
+        <Stack.Screen name="professional-certificates" />
       </Stack.Protected>
 
       <Stack.Protected guard={needsPin}>
@@ -31,9 +44,20 @@ function RootNavigator() {
         <Stack.Screen name="unlock" />
       </Stack.Protected>
 
-      <Stack.Protected guard={isReady}>
+      <Stack.Protected guard={isReady && isProfessional}>
+        <Stack.Screen name="professional-home" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={isReady && !isAdmin && !isProfessional}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="journal" />
+        <Stack.Screen name="professional-profile" />
+        <Stack.Screen name="personal-data" />
+        <Stack.Screen name="article" />
+        <Stack.Screen name="filters" options={{ presentation: "modal" }} />
+      </Stack.Protected>
+
+      <Stack.Protected guard={isReady && isAdmin}>
+        <Stack.Screen name="admin" />
       </Stack.Protected>
     </Stack>
   );

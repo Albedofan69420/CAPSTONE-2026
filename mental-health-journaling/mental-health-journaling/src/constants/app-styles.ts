@@ -975,10 +975,12 @@ export const appStyles = {
     title: {
       fontSize: 24,
       fontWeight: "700",
+      textAlign: "center",
     },
     author: {
       fontSize: 14,
       marginTop: 6,
+      textAlign: "center",
     },
     body: {
       fontSize: 16,

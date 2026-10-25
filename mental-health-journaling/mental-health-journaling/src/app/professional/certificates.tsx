@@ -1,5 +1,5 @@
 import { ComponentProps, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as DocumentPicker from "expo-document-picker";
 import { Ionicons } from "@expo/vector-icons";
@@ -75,7 +75,9 @@ export default function CertificadosProfesional() {
 
     const resultado = await DocumentPicker.getDocumentAsync({
       type: "application/pdf",
-      copyToCacheDirectory: true,
+      // En Android la copia queda en una carpeta que expo-file-system no puede leer en Expo Go,
+      // así que se usa directamente la URI content:// del archivo. En iOS sí se necesita la copia.
+      copyToCacheDirectory: Platform.OS !== "android",
     });
     if (resultado.canceled) return;
 

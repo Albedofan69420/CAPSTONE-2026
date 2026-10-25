@@ -49,9 +49,14 @@ function RootNavigator() {
       <Stack.Protected guard={isReady && !isAdmin && !isProfessional}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="professional-details" />
-        <Stack.Screen name="personal-data" />
         <Stack.Screen name="article" />
         <Stack.Screen name="filters" options={{ presentation: "modal" }} />
+      </Stack.Protected>
+
+      {/* Compartida por el usuario común y el profesional (que además edita su descripción).
+          Va después de las pestañas para que nunca sea la pantalla inicial */}
+      <Stack.Protected guard={isReady && !isAdmin}>
+        <Stack.Screen name="personal-data" />
       </Stack.Protected>
 
       <Stack.Protected guard={isReady && isAdmin}>

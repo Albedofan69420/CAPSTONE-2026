@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -15,6 +15,7 @@ import { router } from "expo-router";
 
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
+import { DESCRIPCION_MAX, actualizarMiDescripcion, obtenerMiDescripcion } from "@/lib/profesionales";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
 
@@ -43,6 +44,40 @@ export default function DatosPersonales() {
   const [email, setEmail] = useState(user?.email ?? "");
   const [guardandoNombre, setGuardandoNombre] = useState(false);
   const [guardandoEmail, setGuardandoEmail] = useState(false);
+
+  // La descripción pública solo existe para los profesionales
+  const esProfesional = metadata.tipo_usuario === "profesional";
+  const [descripcion, setDescripcion] = useState("");
+  const [descripcionGuardada, setDescripcionGuardada] = useState("");
+  const [guardandoDescripcion, setGuardandoDescripcion] = useState(false);
+
+  // Depende solo del id: el objeto user cambia en cada renovación de sesión y borraría lo que se está escribiendo
+  const userId = user?.id;
+  useEffect(() => {
+    if (!esProfesional || !userId) return;
+    obtenerMiDescripcion(userId)
+      .then((texto) => {
+        setDescripcion(texto);
+        setDescripcionGuardada(texto);
+      })
+      .catch((e) => console.log("Error al cargar la descripción:", e.message));
+  }, [esProfesional, userId]);
+
+  const descripcionCambio = descripcion.trim() !== descripcionGuardada.trim();
+
+  const guardarDescripcion = async () => {
+    if (!user) return;
+    setGuardandoDescripcion(true);
+    try {
+      await actualizarMiDescripcion(user.id, descripcion);
+      setDescripcionGuardada(descripcion.trim());
+      Alert.alert("Descripción actualizada", "Los usuarios verán tu nueva descripción en tu perfil.");
+    } catch (e) {
+      Alert.alert("No se pudo guardar la descripción", (e as Error).message);
+    } finally {
+      setGuardandoDescripcion(false);
+    }
+  };
 
   const bloqueadoHasta = proximoCambioPermitido(user?.app_metadata.nombre_actualizado_en);
   const nombreCambio =
@@ -228,6 +263,51 @@ export default function DatosPersonales() {
               </Text>
             </Pressable>
           </View>
+
+          {esProfesional && (
+            <View style={s.section}>
+              <Text style={[s.sectionTitle, { color: c.text }]}>Descripción profesional</Text>
+
+              <View style={s.field}>
+                <TextInput
+                  style={[s.input, s.textArea, { color: c.text, borderColor: c.border }]}
+                  value={descripcion}
+                  onChangeText={setDescripcion}
+                  placeholder="Cuéntales a los usuarios sobre tu experiencia y cómo trabajas..."
+                  placeholderTextColor={c.textSecondary}
+                  maxLength={DESCRIPCION_MAX}
+                  multiline
+                  textAlignVertical="top"
+                  accessibilityLabel="Descripción profesional"
+                />
+                <Text style={[s.counter, { color: c.textSecondary }]}>
+                  {descripcion.length}/{DESCRIPCION_MAX}
+                </Text>
+              </View>
+
+              <View style={[s.notice, { backgroundColor: c.backgroundElement }]}>
+                <Ionicons name="eye-outline" size={18} color={c.textSecondary} />
+                <Text style={[s.noticeText, { color: c.textSecondary }]}>
+                  Los usuarios verán esta descripción en tu perfil cuando tus certificados estén aprobados.
+                </Text>
+              </View>
+
+              <Pressable
+                style={[
+                  s.button,
+                  { backgroundColor: c.accent },
+                  (!descripcionCambio || guardandoDescripcion) && s.buttonDisabled,
+                ]}
+                onPress={guardarDescripcion}
+                disabled={!descripcionCambio || guardandoDescripcion}
+                accessibilityRole="button"
+              >
+                <Text style={[s.buttonText, { color: c.accentText }]}>
+                  {guardandoDescripcion ? "Guardando..." : "Guardar descripción"}
+                </Text>
+              </Pressable>
+            </View>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

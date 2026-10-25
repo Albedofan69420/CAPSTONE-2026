@@ -9,15 +9,14 @@ export default function ProfessionalLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* Sin PIN todavía: paso de certificados del registro */}
-      <Stack.Protected guard={hasPin === false}>
-        <Stack.Screen name="certificates" />
+      {/* Con PIN: pestañas del profesional (Inicio, Pacientes y Perfil).
+          Va primero para que sea la pantalla inicial cuando está disponible */}
+      <Stack.Protected guard={hasPin === true}>
+        <Stack.Screen name="(tabs)" />
       </Stack.Protected>
 
-      {/* Con PIN: inicio del profesional */}
-      <Stack.Protected guard={hasPin === true}>
-        <Stack.Screen name="index" />
-      </Stack.Protected>
+      {/* Sin PIN es el paso de certificados del registro; con PIN se abre desde Perfil */}
+      <Stack.Screen name="certificates" />
     </Stack>
   );
 }

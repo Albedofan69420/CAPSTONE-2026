@@ -260,6 +260,16 @@ export const appStyles = {
     profession: {
       fontSize: 14,
     },
+    // Ícono de usuario mientras los profesionales no tengan foto
+    photoPlaceholder: {
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    emptyText: {
+      fontSize: 15,
+      textAlign: "center",
+      marginTop: 32,
+    },
   }),
 
   // src/app/professional-details.tsx
@@ -307,6 +317,12 @@ export const appStyles = {
       flexDirection: "row",
       gap: 4,
       marginTop: 4,
+    },
+    ratingText: {
+      fontSize: 13,
+    },
+    loading: {
+      marginTop: 32,
     },
     // El marginTop deja el espacio en blanco que separa la descripción de la cabecera
     description: {
@@ -517,6 +533,16 @@ export const appStyles = {
     inputDisabled: {
       opacity: 0.5,
     },
+    // Descripción profesional (solo para profesionales)
+    textArea: {
+      minHeight: 160,
+      paddingTop: 12,
+      paddingBottom: 12,
+    },
+    counter: {
+      fontSize: 12,
+      textAlign: "right",
+    },
     notice: {
       flexDirection: "row",
       alignItems: "flex-start",
@@ -651,6 +677,147 @@ export const appStyles = {
     emptyText: {
       fontSize: 15,
       textAlign: "center",
+    },
+    // Filtros de verification.tsx
+    filters: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      paddingHorizontal: 16,
+      paddingTop: 8,
+    },
+    filterChip: {
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: 20,
+      borderWidth: 1,
+    },
+    filterText: {
+      fontSize: 14,
+      fontWeight: "600",
+    },
+  }),
+
+  // src/app/admin/verification-detail.tsx
+  verificacion: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    topBar: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+      paddingTop: 8,
+    },
+    topBarTitle: {
+      flex: 1,
+      fontSize: 18,
+      fontWeight: "700",
+      textAlign: "center",
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    loading: {
+      marginTop: 32,
+    },
+    emptyText: {
+      fontSize: 15,
+      textAlign: "center",
+      marginTop: 32,
+    },
+    scrollContent: {
+      paddingHorizontal: 16,
+      paddingTop: 12,
+      paddingBottom: 40,
+      gap: 12,
+    },
+    section: {
+      borderRadius: 16,
+      padding: 16,
+      gap: 10,
+    },
+    name: {
+      fontSize: 20,
+      fontWeight: "700",
+      marginBottom: 4,
+    },
+    row: {
+      flexDirection: "row",
+      gap: 12,
+    },
+    rowLabel: {
+      width: 64,
+      fontSize: 14,
+    },
+    rowValue: {
+      flex: 1,
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      marginTop: 12,
+    },
+    document: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      padding: 14,
+      borderRadius: 14,
+    },
+    documentTitle: {
+      flex: 1,
+      fontSize: 15,
+      fontWeight: "600",
+    },
+    documentAction: {
+      fontSize: 14,
+      fontWeight: "700",
+    },
+    actions: {
+      gap: 12,
+      marginTop: 20,
+    },
+    field: {
+      gap: 6,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    input: {
+      minHeight: 96,
+      borderWidth: 1,
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      fontSize: 15,
+    },
+    button: {
+      height: 48,
+      borderRadius: 20,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    buttonOutline: {
+      borderWidth: 1.5,
+    },
+    buttonText: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    disabled: {
+      opacity: 0.5,
+    },
+    cancel: {
+      alignItems: "center",
+      paddingVertical: 8,
     },
   }),
 
@@ -854,6 +1021,97 @@ export const appStyles = {
     pickButtonText: {
       fontSize: 15,
       fontWeight: "700",
+    },
+    // Estado de la verificación y plazo
+    notice: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 10,
+      padding: 12,
+      borderRadius: 12,
+    },
+    noticeText: {
+      flex: 1,
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    // Al abrirse desde el perfil (con barra superior para volver)
+    screen: {
+      flex: 1,
+    },
+    topBar: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+      paddingTop: 8,
+    },
+    topBarTitle: {
+      flex: 1,
+      fontSize: 18,
+      fontWeight: "700",
+      textAlign: "center",
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    scrollContent: {
+      padding: 24,
+      paddingTop: 8,
+    },
+  }),
+
+  // src/app/professional/(tabs)/index.tsx y patients.tsx
+  professionalTabs: StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      // Deja espacio para la barra inferior flotante
+      paddingBottom: 110,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: "700",
+      marginBottom: 4,
+    },
+    subtitle: {
+      fontSize: 15,
+    },
+    // Recordatorio de certificados pendientes en index.tsx
+    reminder: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      padding: 14,
+      borderRadius: 14,
+      borderWidth: 1.5,
+      marginTop: 24,
+    },
+    reminderInfo: {
+      flex: 1,
+      gap: 4,
+    },
+    reminderTitle: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    reminderText: {
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    emptyState: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 12,
+    },
+    emptyText: {
+      fontSize: 15,
+      textAlign: "center",
     },
   }),
 };

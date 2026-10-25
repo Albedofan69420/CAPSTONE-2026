@@ -1,23 +1,41 @@
-import { useState } from "react";
-import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { useCallback, useState } from "react";
+import { ActivityIndicator, FlatList, Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
-import { PROFESIONALES } from "@/lib/profesionales";
+import {
+  ESPECIALIDAD_POR_DEFECTO,
+  listarProfesionales,
+  nombreProfesional,
+  type Profesional,
+} from "@/lib/profesionales";
 
 const s = appStyles.profesionales;
 
 export default function Profesionales() {
   const c = useTheme();
   const [busqueda, setBusqueda] = useState("");
+  const [profesionales, setProfesionales] = useState<Profesional[]>([]);
+  const [cargando, setCargando] = useState(true);
 
-  const filtrados = PROFESIONALES.filter((p) =>
-    `${p.nombre} ${p.profesion}`.toLowerCase().includes(busqueda.trim().toLowerCase())
+  // Solo llegan los profesionales con sus dos certificados aprobados (lo filtra la base de datos)
+  useFocusEffect(
+    useCallback(() => {
+      listarProfesionales()
+        .then(setProfesionales)
+        .catch((e) => console.log("Error al cargar los profesionales:", e.message))
+        .finally(() => setCargando(false));
+    }, [])
+  );
+
+  const filtrados = profesionales.filter((p) =>
+    `${nombreProfesional(p)} ${p.especialidad ?? ""}`
+      .toLowerCase()
+      .includes(busqueda.trim().toLowerCase())
   );
 
   return (
@@ -53,31 +71,46 @@ export default function Profesionales() {
 
       <FlatList
         data={filtrados}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.user_id}
         contentContainerStyle={s.list}
-        renderItem={({ item }) => (
-          <Pressable
-            style={({ pressed }) => [
-              s.card,
-              { backgroundColor: c.backgroundElement },
-              pressed && { opacity: 0.8 },
-            ]}
-            onPress={() =>
-              router.push({ pathname: "/professional-details", params: { id: item.id } })
-            }
-            accessibilityRole="button"
-            accessibilityLabel={`Ver perfil de ${item.nombre}, ${item.profesion}`}
-          >
-            <Image source={{ uri: item.foto }} style={s.photo} contentFit="cover" />
-            <View style={s.cardInfo}>
-              <Text style={[s.name, { color: c.text }]}>{item.nombre}</Text>
-              <Text style={[s.profession, { color: c.textSecondary }]}>
-                {item.profesion}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={c.textSecondary} />
-          </Pressable>
-        )}
+        ListEmptyComponent={
+          cargando ? (
+            <ActivityIndicator color={c.accent} />
+          ) : (
+            <Text style={[s.emptyText, { color: c.textSecondary }]}>
+              {busqueda.trim()
+                ? "No encontramos profesionales con esa búsqueda."
+                : "Aún no hay profesionales disponibles."}
+            </Text>
+          )
+        }
+        renderItem={({ item }) => {
+          const nombre = nombreProfesional(item);
+          const especialidad = item.especialidad || ESPECIALIDAD_POR_DEFECTO;
+          return (
+            <Pressable
+              style={({ pressed }) => [
+                s.card,
+                { backgroundColor: c.backgroundElement },
+                pressed && { opacity: 0.8 },
+              ]}
+              onPress={() =>
+                router.push({ pathname: "/professional-details", params: { id: item.user_id } })
+              }
+              accessibilityRole="button"
+              accessibilityLabel={`Ver perfil de ${nombre}, ${especialidad}`}
+            >
+              <View style={[s.photo, s.photoPlaceholder, { backgroundColor: c.backgroundSelected }]}>
+                <Ionicons name="person" size={32} color={c.textSecondary} />
+              </View>
+              <View style={s.cardInfo}>
+                <Text style={[s.name, { color: c.text }]}>{nombre}</Text>
+                <Text style={[s.profession, { color: c.textSecondary }]}>{especialidad}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={c.textSecondary} />
+            </Pressable>
+          );
+        }}
       />
     </SafeAreaView>
   );

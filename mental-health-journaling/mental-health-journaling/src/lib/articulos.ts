@@ -1,3 +1,4 @@
+import { leerArchivoLocal } from "@/lib/archivos";
 import { supabase } from "@/lib/supabase";
 
 // Columnas de la tabla public.articulos (ver supabase/migrations)
@@ -86,8 +87,8 @@ export async function subirImagen(uri: string, mimeType?: string | null) {
   const extension = tipo.split("/")[1] ?? "jpg";
   const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
 
-  // Recomendado por Supabase para React Native: subir el archivo como ArrayBuffer
-  const archivo = await fetch(uri).then((res) => res.arrayBuffer());
+  // Se sube como ArrayBuffer, leído con expo-file-system (ver src/lib/archivos.ts)
+  const archivo = await leerArchivoLocal(uri);
 
   const { error } = await supabase.storage
     .from(BUCKET)

@@ -1,3 +1,4 @@
+import { leerArchivoLocal } from "@/lib/archivos";
 import { supabase } from "@/lib/supabase";
 
 export type TipoCertificado = "prestador" | "inhabilidad";
@@ -65,7 +66,7 @@ export async function subirCertificado(
 ) {
   // La primera carpeta debe ser el id del usuario: así lo exigen las políticas de Storage
   const path = `${userId}/${tipo}-${Date.now()}.pdf`;
-  const archivo = await fetch(uri).then((res) => res.arrayBuffer());
+  const archivo = await leerArchivoLocal(uri);
 
   const { error: uploadError } = await supabase.storage
     .from(BUCKET_CERTIFICADOS)

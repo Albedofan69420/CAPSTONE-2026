@@ -1,11 +1,14 @@
-import { ComponentProps } from "react";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { ComponentProps, useEffect, useState } from "react";
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { router, type Href } from "expo-router";
 
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
+import { obtenerMiFoto, subirFotoPerfil, urlFotoPerfil } from "@/lib/foto-perfil";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
 
@@ -60,6 +63,40 @@ export default function PerfilProfesional() {
     session?.user.email ||
     "";
 
+  const userId = session?.user.id;
+  const [fotoPath, setFotoPath] = useState<string | null>(null);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
+  const fotoUrl = urlFotoPerfil(fotoPath);
+
+  useEffect(() => {
+    if (!userId) return;
+    obtenerMiFoto(userId)
+      .then(setFotoPath)
+      .catch((e) => console.log("Error al cargar la foto de perfil:", e.message));
+  }, [userId]);
+
+  const cambiarFoto = async () => {
+    if (!userId) return;
+
+    const resultado = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (resultado.canceled) return;
+
+    const asset = resultado.assets[0];
+    setSubiendoFoto(true);
+    try {
+      setFotoPath(await subirFotoPerfil(userId, asset.uri, asset.mimeType, fotoPath));
+    } catch (e) {
+      Alert.alert("No se pudo cambiar la foto", (e as Error).message);
+    } finally {
+      setSubiendoFoto(false);
+    }
+  };
+
   // Al cerrar sesión, AuthProvider recibe SIGNED_OUT y el layout raíz vuelve a (auth)
   const cerrarSesion = () => {
     Alert.alert("Cerrar sesión", "¿Seguro que quieres cerrar tu sesión?", [
@@ -79,13 +116,37 @@ export default function PerfilProfesional() {
     <SafeAreaView style={[s.container, { backgroundColor: c.background }]}>
       <ScrollView contentContainerStyle={s.scrollContent}>
         <View style={s.header}>
-          <View
-            style={[s.avatar, { backgroundColor: c.backgroundElement }]}
-            accessibilityLabel="Foto de perfil"
+          <Pressable
+            style={s.avatarWrapper}
+            onPress={cambiarFoto}
+            disabled={subiendoFoto}
+            accessibilityRole="button"
+            accessibilityLabel="Cambiar foto de perfil"
           >
-            <Ionicons name="person" size={64} color={c.textSecondary} />
-          </View>
+            <View style={[s.avatar, s.avatarClip, { backgroundColor: c.backgroundElement }]}>
+              {fotoUrl ? (
+                <Image source={{ uri: fotoUrl }} style={s.avatarImage} contentFit="cover" />
+              ) : (
+                <Ionicons name="person" size={64} color={c.textSecondary} />
+              )}
+              {subiendoFoto && (
+                <View style={s.avatarLoading}>
+                  <ActivityIndicator color="#fff" />
+                </View>
+              )}
+            </View>
+            <View style={[s.editBadge, { backgroundColor: c.accent, borderColor: c.background }]}>
+              <Ionicons name="pencil" size={16} color={c.accentText} />
+            </View>
+          </Pressable>
+
           <Text style={[s.name, { color: c.text }]}>{nombre}</Text>
+
+          <Pressable onPress={cambiarFoto} disabled={subiendoFoto} hitSlop={8} accessibilityRole="button">
+            <Text style={[s.changePhoto, { color: c.accent }]}>
+              {subiendoFoto ? "Subiendo foto..." : "Cambiar foto de perfil"}
+            </Text>
+          </Pressable>
         </View>
 
         <Text style={[s.sectionTitle, { color: c.text }]}>Ajustes de la cuenta</Text>

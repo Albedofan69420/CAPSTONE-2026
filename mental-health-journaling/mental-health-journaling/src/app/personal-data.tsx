@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
+import { ProfessionalInfoForm } from "@/components/professional-info-form";
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
 import { DESCRIPCION_MAX, actualizarMiDescripcion, obtenerMiDescripcion } from "@/lib/profesionales";
@@ -161,7 +162,8 @@ export default function DatosPersonales() {
       >
         <ScrollView contentContainerStyle={s.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={s.section}>
-            <Text style={[s.sectionTitle, { color: c.text }]}>Nombre</Text>
+            {/* El profesional ve solo los títulos pequeños de cada campo */}
+            {!esProfesional && <Text style={[s.sectionTitle, { color: c.text }]}>Nombre</Text>}
 
             <View style={s.field}>
               <Text style={[s.label, { color: c.text }]}>Nombre</Text>
@@ -219,10 +221,14 @@ export default function DatosPersonales() {
           </View>
 
           <View style={s.section}>
-            <Text style={[s.sectionTitle, { color: c.text }]}>Correo electrónico</Text>
+            {!esProfesional && (
+              <Text style={[s.sectionTitle, { color: c.text }]}>Correo electrónico</Text>
+            )}
 
             <View style={s.field}>
-              <Text style={[s.label, { color: c.text }]}>Correo</Text>
+              <Text style={[s.label, { color: c.text }]}>
+                {esProfesional ? "Correo electrónico" : "Correo"}
+              </Text>
               <TextInput
                 style={[s.input, { color: c.text, borderColor: c.border }]}
                 value={email}
@@ -264,11 +270,13 @@ export default function DatosPersonales() {
             </Pressable>
           </View>
 
+          {esProfesional && userId && <ProfessionalInfoForm userId={userId} />}
+
           {esProfesional && (
             <View style={s.section}>
-              <Text style={[s.sectionTitle, { color: c.text }]}>Descripción profesional</Text>
-
               <View style={s.field}>
+                {/* Mismo tamaño que los títulos de los demás campos */}
+                <Text style={[s.label, { color: c.text }]}>Descripción profesional</Text>
                 <TextInput
                   style={[s.input, s.textArea, { color: c.text, borderColor: c.border }]}
                   value={descripcion}

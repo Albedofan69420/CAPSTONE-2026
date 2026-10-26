@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 
+import { WeekStrip } from "@/components/week-strip";
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
 import { mensajePlazo, obtenerEstadoProfesional, type EstadoProfesional } from "@/lib/certificados";
@@ -15,8 +16,8 @@ const s = appStyles.professionalTabs;
 export default function InicioProfesional() {
   const c = useTheme();
   const { session } = useAuth();
-  const nombre = session?.user.user_metadata.nombre ?? "";
   const [estado, setEstado] = useState<EstadoProfesional | null>(null);
+  const [fecha, setFecha] = useState(new Date());
 
   // Se recarga al volver, por ejemplo después de subir los certificados desde Perfil
   useFocusEffect(
@@ -30,12 +31,8 @@ export default function InicioProfesional() {
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: c.background }]}>
-      <Text style={[s.title, { color: c.text }]}>
-        {nombre ? `Hola, ${nombre}` : "Inicio"}
-      </Text>
-      <Text style={[s.subtitle, { color: c.textSecondary }]}>
-        Aquí verás un resumen de tu actividad.
-      </Text>
+      {/* Mismo calendario que el usuario común, sin marcas del diario */}
+      <WeekStrip selectedDate={fecha} onSelectDate={setFecha} />
 
       {/* Solo mientras no haya enviado sus dos certificados a revisión */}
       {estado?.estado === "pendiente_documentos" && (

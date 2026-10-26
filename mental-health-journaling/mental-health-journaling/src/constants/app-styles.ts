@@ -304,6 +304,13 @@ export const appStyles = {
       justifyContent: "center",
       marginBottom: 4,
     },
+    avatarClip: {
+      overflow: "hidden",
+    },
+    avatarImage: {
+      width: "100%",
+      height: "100%",
+    },
     name: {
       fontSize: 22,
       fontWeight: "700",
@@ -320,6 +327,32 @@ export const appStyles = {
     },
     ratingText: {
       fontSize: 13,
+    },
+    // Edad, género, región y comuna, sobre la descripción
+    info: {
+      alignSelf: "stretch",
+      borderRadius: 14,
+      padding: 14,
+      gap: 10,
+      marginTop: 28,
+    },
+    infoRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+    },
+    infoLabel: {
+      width: 64,
+      fontSize: 14,
+    },
+    infoValue: {
+      flex: 1,
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    // Con el bloque de datos encima, la descripción necesita menos separación
+    descriptionAfterInfo: {
+      marginTop: 20,
     },
     loading: {
       marginTop: 32,
@@ -360,6 +393,43 @@ export const appStyles = {
       borderRadius: 60,
       alignItems: "center",
       justifyContent: "center",
+    },
+    // Foto editable del profesional (src/app/professional/(tabs)/profile.tsx)
+    avatarWrapper: {
+      width: 120,
+      height: 120,
+    },
+    avatarClip: {
+      overflow: "hidden",
+    },
+    avatarImage: {
+      width: "100%",
+      height: "100%",
+    },
+    avatarLoading: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(0, 0, 0, 0.35)",
+    },
+    editBadge: {
+      position: "absolute",
+      right: 2,
+      bottom: 2,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      borderWidth: 3,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    changePhoto: {
+      fontSize: 15,
+      fontWeight: "600",
     },
     name: {
       fontSize: 22,
@@ -542,6 +612,10 @@ export const appStyles = {
     counter: {
       fontSize: 12,
       textAlign: "right",
+    },
+    // Texto bajo un campo (por ejemplo, la edad calculada)
+    hint: {
+      fontSize: 13,
     },
     notice: {
       flexDirection: "row",

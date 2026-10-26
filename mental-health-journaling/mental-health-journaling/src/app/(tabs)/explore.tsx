@@ -2,11 +2,13 @@ import { useCallback, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 
 import { router, useFocusEffect } from "expo-router";
 
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
+import { urlFotoPerfil } from "@/lib/foto-perfil";
 import {
   ESPECIALIDAD_POR_DEFECTO,
   listarProfesionales,
@@ -100,9 +102,17 @@ export default function Profesionales() {
               accessibilityRole="button"
               accessibilityLabel={`Ver perfil de ${nombre}, ${especialidad}`}
             >
-              <View style={[s.photo, s.photoPlaceholder, { backgroundColor: c.backgroundSelected }]}>
-                <Ionicons name="person" size={32} color={c.textSecondary} />
-              </View>
+              {item.foto_path ? (
+                <Image
+                  source={{ uri: urlFotoPerfil(item.foto_path) ?? undefined }}
+                  style={s.photo}
+                  contentFit="cover"
+                />
+              ) : (
+                <View style={[s.photo, s.photoPlaceholder, { backgroundColor: c.backgroundSelected }]}>
+                  <Ionicons name="person" size={32} color={c.textSecondary} />
+                </View>
+              )}
               <View style={s.cardInfo}>
                 <Text style={[s.name, { color: c.text }]}>{nombre}</Text>
                 <Text style={[s.profession, { color: c.textSecondary }]}>{especialidad}</Text>

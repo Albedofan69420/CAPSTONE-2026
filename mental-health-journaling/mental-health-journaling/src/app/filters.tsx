@@ -6,16 +6,12 @@ import { router } from "expo-router";
 import { Dropdown } from "@/components/dropdown";
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
+import { REGIONES, comunasDe } from "@/constants/regiones";
 
 const s = appStyles.filtros;
 
 // Opciones provisorias, reemplazar por las obtenidas desde el backend.
-const COMUNAS_POR_REGION: Record<string, string[]> = {
-  "Región Metropolitana": ["Santiago", "Providencia", "Las Condes", "Maipú", "Puente Alto"],
-  "Valparaíso": ["Valparaíso", "Viña del Mar", "Quilpué", "Villa Alemana"],
-  "Biobío": ["Concepción", "Talcahuano", "San Pedro de la Paz", "Los Ángeles"],
-};
-const REGIONES = Object.keys(COMUNAS_POR_REGION);
+// Las regiones y comunas son las mismas que elige el profesional (src/constants/regiones.ts)
 const TIPOS_ATENCION = ["Presencial", "Online", "Presencial y online"];
 const ESPECIALIDADES = ["Psicología clínica", "Psiquiatría", "Terapia de pareja", "Psicología infantojuvenil"];
 
@@ -61,7 +57,7 @@ export default function Filtros() {
         <Dropdown
           label="Comuna"
           placeholder={region ? "Selecciona una comuna" : "Primero elige una región"}
-          options={region ? COMUNAS_POR_REGION[region] : []}
+          options={comunasDe(region)}
           value={comuna}
           onChange={setComuna}
           disabled={!region}

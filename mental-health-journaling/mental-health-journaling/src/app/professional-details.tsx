@@ -105,6 +105,21 @@ export default function ProfessionalDetails() {
             <Text style={[s.description, datos.length > 0 && s.descriptionAfterInfo, { color: c.text }]}>
               {profesional.descripcion || DESCRIPCION_POR_DEFECTO}
             </Text>
+
+            {/* El día y la hora se coordinan en el chat de la cita */}
+            <Pressable
+              style={({ pressed }) => [s.button, { backgroundColor: c.accent }, pressed && { opacity: 0.8 }]}
+              onPress={() =>
+                router.push({
+                  pathname: "/solicitar-cita",
+                  params: { profesionalId: profesional.user_id, nombre: nombreProfesional(profesional) },
+                })
+              }
+              accessibilityRole="button"
+            >
+              <Ionicons name="calendar-outline" size={20} color={c.accentText} />
+              <Text style={[s.buttonText, { color: c.accentText }]}>Solicitar cita</Text>
+            </Pressable>
           </View>
         ) : (
           <Text style={[s.notFound, { color: c.textSecondary }]}>

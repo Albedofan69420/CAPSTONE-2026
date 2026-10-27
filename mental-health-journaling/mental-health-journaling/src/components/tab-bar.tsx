@@ -1,5 +1,5 @@
 import { ComponentProps } from "react";
-import { ColorValue, StyleSheet, View } from "react-native";
+import { ColorValue, StyleSheet, useWindowDimensions, View } from "react-native";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,16 +14,23 @@ type TabOptions = Exclude<
 >;
 
 const ICON_SIZE = 28;
+const BAR_MARGIN = 40;
+const PILL_MAX_WIDTH = 110;
 
-/** Estilo de la barra inferior flotante, compartido por el usuario común y el profesional. */
-export function useTabBar() {
+/**
+ * Estilo de la barra inferior flotante, compartido por el usuario común y el profesional.
+ * `visibleTabs` ajusta el ancho del fondo del ícono para que quepan 4 pestañas en pantallas chicas.
+ */
+export function useTabBar(visibleTabs = 3) {
   const c = useTheme();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const pillWidth = Math.min(PILL_MAX_WIDTH, (width - BAR_MARGIN * 2 - 16) / visibleTabs - 8);
 
   const tabIcon = (active: IconName, inactive: IconName) =>
     function TabIcon({ color, focused }: { color: ColorValue; focused: boolean }) {
       return (
-        <View style={[styles.pill, focused && { backgroundColor: `${c.accent}26` }]}>
+        <View style={[styles.pill, { width: pillWidth }, focused && { backgroundColor: `${c.accent}26` }]}>
           <Ionicons
             name={focused ? active : inactive}
             size={ICON_SIZE}
@@ -41,10 +48,17 @@ export function useTabBar() {
       fontSize: 12,
       fontWeight: "600",
     },
+    // Círculo rojo con los mensajes por leer (tabBarBadge en cada pestaña)
+    tabBarBadgeStyle: {
+      backgroundColor: c.badge,
+      color: c.badgeText,
+      fontSize: 11,
+      fontWeight: "700",
+    },
     tabBarStyle: {
       position: "absolute",
-      left: 40,
-      right: 40,
+      left: BAR_MARGIN,
+      right: BAR_MARGIN,
       bottom: Math.max(insets.bottom, 12),
       height: 80,
       borderRadius: 40,
@@ -66,7 +80,6 @@ export function useTabBar() {
 
 const styles = StyleSheet.create({
   pill: {
-    width: 110,
     height: 55,
     borderRadius: 20,
     alignItems: "center",

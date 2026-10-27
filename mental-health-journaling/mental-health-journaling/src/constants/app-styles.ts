@@ -370,6 +370,21 @@ export const appStyles = {
       textAlign: "center",
       marginTop: 32,
     },
+    // Botón "Solicitar cita" bajo la descripción
+    button: {
+      alignSelf: "stretch",
+      flexDirection: "row",
+      gap: 8,
+      height: 48,
+      borderRadius: 12,
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 28,
+    },
+    buttonText: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
   }),
 
   // src/app/(tabs)/perfil.tsx
@@ -1188,6 +1203,375 @@ export const appStyles = {
     emptyText: {
       fontSize: 15,
       textAlign: "center",
+    },
+    // Lista de solicitudes y citas en patients.tsx
+    listContent: {
+      paddingTop: 16,
+      gap: 10,
+    },
+    sectionLabel: {
+      fontSize: 16,
+      fontWeight: "700",
+      marginTop: 12,
+    },
+  }),
+
+  // src/components/cita-card.tsx
+  citaCard: StyleSheet.create({
+    card: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      padding: 14,
+      borderRadius: 14,
+    },
+    avatar: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+    },
+    avatarImage: {
+      width: "100%",
+      height: "100%",
+    },
+    info: {
+      flex: 1,
+      gap: 2,
+    },
+    name: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    detail: {
+      fontSize: 13,
+    },
+    badge: {
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 10,
+    },
+    badgeText: {
+      fontSize: 12,
+      fontWeight: "700",
+    },
+    // Estado y mensajes por leer, uno sobre el otro
+    side: {
+      alignItems: "flex-end",
+      gap: 6,
+    },
+    unread: {
+      minWidth: 22,
+      height: 22,
+      paddingHorizontal: 6,
+      borderRadius: 11,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    unreadText: {
+      fontSize: 12,
+      fontWeight: "700",
+    },
+  }),
+
+  // src/app/solicitar-cita.tsx
+  citas: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      paddingHorizontal: 8,
+      paddingTop: 8,
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    listContent: {
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 32,
+      gap: 10,
+    },
+    emptyState: {
+      alignItems: "center",
+      gap: 12,
+      marginTop: 64,
+      paddingHorizontal: 24,
+    },
+    emptyText: {
+      fontSize: 15,
+      textAlign: "center",
+    },
+    loading: {
+      marginTop: 32,
+    },
+    // Formulario de solicitud
+    scrollContent: {
+      paddingHorizontal: 20,
+      paddingTop: 16,
+      paddingBottom: 32,
+      gap: 24,
+    },
+    subtitle: {
+      fontSize: 15,
+      lineHeight: 22,
+    },
+    field: {
+      gap: 8,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    textArea: {
+      minHeight: 110,
+      borderWidth: 1,
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      paddingTop: 12,
+      paddingBottom: 12,
+      fontSize: 16,
+      textAlignVertical: "top",
+    },
+    counter: {
+      fontSize: 12,
+      textAlign: "right",
+    },
+    notice: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 8,
+      padding: 12,
+      borderRadius: 10,
+    },
+    noticeText: {
+      flex: 1,
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    button: {
+      height: 48,
+      borderRadius: 10,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    buttonDisabled: {
+      opacity: 0.5,
+    },
+    buttonText: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+  }),
+
+  // src/app/cita.tsx (chat de la reserva)
+  chat: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      paddingHorizontal: 8,
+      paddingVertical: 8,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerInfo: {
+      flex: 1,
+    },
+    headerName: {
+      fontSize: 17,
+      fontWeight: "700",
+    },
+    headerDetail: {
+      fontSize: 13,
+    },
+    // Tarjeta con el estado de la cita y las acciones
+    panel: {
+      margin: 12,
+      padding: 14,
+      borderRadius: 14,
+      gap: 10,
+    },
+    panelTitle: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    panelText: {
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    actions: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+    },
+    action: {
+      flexGrow: 1,
+      height: 40,
+      paddingHorizontal: 14,
+      borderRadius: 10,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    actionOutline: {
+      borderWidth: 1.5,
+    },
+    actionText: {
+      fontSize: 14,
+      fontWeight: "700",
+    },
+    // Campos para proponer un horario
+    proposeRow: {
+      flexDirection: "row",
+      gap: 8,
+    },
+    proposeInput: {
+      flex: 1,
+      height: 42,
+      borderWidth: 1,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      fontSize: 15,
+    },
+    // Mensajes
+    list: {
+      flex: 1,
+    },
+    listContent: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      gap: 6,
+    },
+    bubble: {
+      maxWidth: "80%",
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 16,
+    },
+    bubbleMine: {
+      alignSelf: "flex-end",
+      borderBottomRightRadius: 4,
+    },
+    bubbleOther: {
+      alignSelf: "flex-start",
+      borderBottomLeftRadius: 4,
+    },
+    bubbleText: {
+      fontSize: 15,
+      lineHeight: 20,
+    },
+    bubbleTime: {
+      fontSize: 11,
+      marginTop: 2,
+      alignSelf: "flex-end",
+    },
+    systemText: {
+      alignSelf: "center",
+      fontSize: 12,
+      textAlign: "center",
+      paddingHorizontal: 24,
+      paddingVertical: 4,
+    },
+    // Aviso de ayuda cuando el texto tiene palabras de riesgo
+    crisis: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 8,
+      marginHorizontal: 12,
+      marginBottom: 8,
+      padding: 12,
+      borderRadius: 10,
+      borderWidth: 1.5,
+    },
+    crisisText: {
+      flex: 1,
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    quickReplies: {
+      paddingHorizontal: 12,
+      paddingBottom: 8,
+      gap: 8,
+    },
+    quickReply: {
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: 16,
+      borderWidth: 1,
+    },
+    quickReplyText: {
+      fontSize: 13,
+      fontWeight: "600",
+    },
+    composer: {
+      flexDirection: "row",
+      alignItems: "flex-end",
+      gap: 8,
+      paddingHorizontal: 12,
+      paddingTop: 8,
+      paddingBottom: 8,
+      borderTopWidth: StyleSheet.hairlineWidth,
+    },
+    input: {
+      flex: 1,
+      minHeight: 42,
+      maxHeight: 110,
+      borderWidth: 1,
+      borderRadius: 20,
+      paddingHorizontal: 14,
+      paddingTop: 10,
+      paddingBottom: 10,
+      fontSize: 15,
+    },
+    send: {
+      width: 42,
+      height: 42,
+      borderRadius: 21,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    counter: {
+      fontSize: 11,
+      textAlign: "right",
+      paddingHorizontal: 16,
+    },
+    closed: {
+      fontSize: 13,
+      textAlign: "center",
+      padding: 16,
+      borderTopWidth: StyleSheet.hairlineWidth,
+    },
+    disclaimer: {
+      fontSize: 12,
+      lineHeight: 16,
+      textAlign: "center",
+      paddingHorizontal: 16,
+      paddingVertical: 6,
+    },
+    notFound: {
+      fontSize: 16,
+      textAlign: "center",
+      marginTop: 32,
     },
   }),
 };

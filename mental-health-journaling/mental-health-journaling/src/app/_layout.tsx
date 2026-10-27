@@ -4,6 +4,7 @@ import { useColorScheme } from "react-native";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import AuthProvider, { useAuth } from "@/providers/AuthProvider";
+import CitasProvider from "@/providers/CitasProvider";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -51,12 +52,15 @@ function RootNavigator() {
         <Stack.Screen name="professional-details" />
         <Stack.Screen name="article" />
         <Stack.Screen name="filters" options={{ presentation: "modal" }} />
+        <Stack.Screen name="solicitar-cita" />
       </Stack.Protected>
 
-      {/* Compartida por el usuario común y el profesional (que además edita su descripción).
-          Va después de las pestañas para que nunca sea la pantalla inicial */}
+      {/* Compartidas por el usuario común y el profesional (que además edita su descripción).
+          Van después de las pestañas para que nunca sean la pantalla inicial */}
       <Stack.Protected guard={isReady && !isAdmin}>
         <Stack.Screen name="personal-data" />
+        {/* Chat de la reserva: el profesional llega desde Pacientes y el usuario desde Citas */}
+        <Stack.Screen name="cita" />
       </Stack.Protected>
 
       <Stack.Protected guard={isReady && isAdmin}>
@@ -72,8 +76,11 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <AnimatedSplashOverlay />
-        <RootNavigator />
+        {/* Mensajes por leer y citas del usuario, para el menú inferior */}
+        <CitasProvider>
+          <AnimatedSplashOverlay />
+          <RootNavigator />
+        </CitasProvider>
       </AuthProvider>
     </ThemeProvider>
   );

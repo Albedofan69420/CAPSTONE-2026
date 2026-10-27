@@ -19,6 +19,9 @@ export const Colors = {
     accentText: '#FFFFFF',
     border: '#CBD5D0',
     error: '#B3261E',
+    // Círculo rojo con los mensajes por leer
+    badge: '#E5484D',
+    badgeText: '#FFFFFF',
   },
   dark: {
     text: '#ffffff',
@@ -31,6 +34,9 @@ export const Colors = {
     accentText: '#06241B',
     border: '#2B3A34',
     error: '#F2B8B5',
+    // Círculo rojo con los mensajes por leer
+    badge: '#E5484D',
+    badgeText: '#FFFFFF',
   },
 } as const;
 

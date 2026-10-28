@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
 import {
-  NativeSyntheticEvent,
   StyleSheet,
   TextInput,
-  TextInputKeyPressEventData,
+  TextInputInstance,
+  TextInputKeyPressEvent,
   View,
 } from "react-native";
 
@@ -19,7 +19,7 @@ type Props = {
 
 export function PinInput({ length = PIN_LENGTH, onChange, autoFocus = true }: Props) {
   const c = useTheme();
-  const inputs = useRef<(TextInput | null)[]>([]);
+  const inputs = useRef<(TextInputInstance | null)[]>([]);
   const [digits, setDigits] = useState<string[]>(Array(length).fill(""));
   const [focused, setFocused] = useState<number | null>(null);
 
@@ -42,7 +42,7 @@ export function PinInput({ length = PIN_LENGTH, onChange, autoFocus = true }: Pr
 
   const handleKeyPress = (
     index: number,
-    e: NativeSyntheticEvent<TextInputKeyPressEventData>
+    e: TextInputKeyPressEvent
   ) => {
     // Con el cuadro vacío, borrar regresa al anterior y lo limpia
     if (e.nativeEvent.key === "Backspace" && !digits[index] && index > 0) {

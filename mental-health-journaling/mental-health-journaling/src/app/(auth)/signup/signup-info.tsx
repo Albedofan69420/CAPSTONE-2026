@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { router } from "expo-router";
 import { supabase } from "@/lib/supabase";
-import { Pressable, Text, TextInput, View, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from "react-native";
+import { Pressable, Text, TextInput, TextInputInstance, View, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from "react-native";
 
 import { useTheme } from "@/hooks/use-theme";
 import { authStyles as s } from "@/constants/auth-styles";
@@ -15,7 +15,7 @@ export default function Signup() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
 
-  const passwordRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View,} from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TextInputInstance, View,} from "react-native";
 import { Link } from "expo-router";
 
 import { supabase } from "@/lib/supabase";
@@ -9,7 +9,7 @@ import { authStyles as s } from "@/constants/auth-styles";
 export default function SignIn() {
   const c = useTheme();
 
-  const passwordRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

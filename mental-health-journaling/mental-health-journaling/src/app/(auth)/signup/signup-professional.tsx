@@ -9,6 +9,7 @@ import {
   ScrollView,
   Text,
   TextInput,
+  TextInputInstance,
   View,
 } from "react-native";
 
@@ -28,9 +29,9 @@ export default function SignupProfesional() {
   const [run, setRun] = useState("");
   const [email, setEmail] = useState("");
 
-  const runRef = useRef<TextInput>(null);
-  const emailRef = useRef<TextInput>(null);
-  const passwordRef = useRef<TextInput>(null);
+  const runRef = useRef<TextInputInstance>(null);
+  const emailRef = useRef<TextInputInstance>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 

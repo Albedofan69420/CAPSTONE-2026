@@ -5,13 +5,14 @@ import { useAuth } from "@/providers/AuthProvider";
 // Vistas exclusivas del profesional. El layout raíz solo entra aquí si la cuenta es profesional
 // y está subiendo sus certificados o ya creó su PIN.
 export default function ProfessionalLayout() {
-  const { hasPin } = useAuth();
+  const { session, hasPin } = useAuth();
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
       {/* Con PIN: pestañas del profesional (Inicio, Pacientes y Perfil).
-          Va primero para que sea la pantalla inicial cuando está disponible */}
-      <Stack.Protected guard={hasPin === true}>
+          Va primero para que sea la pantalla inicial cuando está disponible.
+          Al cerrar sesión va directo al login, sin pasar por certificados */}
+      <Stack.Protected guard={hasPin === true} redirectTo={session ? undefined : "/signin"}>
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
 

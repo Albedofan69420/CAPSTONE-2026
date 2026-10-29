@@ -35,7 +35,9 @@ export default function TabsLayout() {
           title: "Citas",
           tabBarIcon: tabIcon("chatbubbles", "chatbubbles-outline"),
           tabBarBadge: noLeidos > 0 ? (noLeidos > 99 ? "99+" : noLeidos) : undefined,
-          href: conCitas ? undefined : null,
+          // Se oculta solo el botón. Con href: null, Expo Router 58 trata la pestaña como oculta y
+          // redirige a Inicio a quien esté en ella (por ejemplo, mientras carga el resumen de citas)
+          tabBarItemStyle: conCitas ? undefined : { display: "none" },
         }}
       />
 
@@ -45,15 +47,6 @@ export default function TabsLayout() {
         options={{
           title: "Perfil",
           tabBarIcon: tabIcon("person", "person-outline"),
-        }}
-      />
-
-      {/* Pantalla del diario: no aparece como pestaña y oculta la barra inferior */}
-      <Tabs.Screen
-        name="journal"
-        options={{
-          href: null,
-          tabBarStyle: { display: "none" },
         }}
       />
     </Tabs>

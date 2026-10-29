@@ -122,7 +122,7 @@ export const appStyles = {
     },
   }),
 
-  // src/app/(tabs)/journal.tsx
+  // src/app/journal.tsx
   journal: StyleSheet.create({
     container: {
       flex: 1,

@@ -55,7 +55,8 @@ export default function ChatCita() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [cita, setCita] = useState<Cita | null>(null);
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
-  const [cargando, setCargando] = useState(true);
+  // Sin id no hay nada que cargar: se muestra "No encontramos esta cita" en vez de cargar sin fin
+  const [cargando, setCargando] = useState(!!id);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [ocupado, setOcupado] = useState(false);

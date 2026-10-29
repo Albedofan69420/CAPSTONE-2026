@@ -24,18 +24,9 @@ export default function JournalScreen() {
   const [improvementAreas, setImprovementAreas] = useState("");
   const [actionPlan, setActionPlan] = useState("");
 
-  // Al estar dentro de (tabs) la pantalla no se desmonta al salir, así que se limpia el
-  // formulario al cambiar de fecha. Si ya hay un registro, se cargan sus datos para editarlos.
+  // La pantalla se crea de nuevo cada vez que se abre, así que el formulario parte vacío.
+  // Si ya hay un registro para la fecha, se cargan sus datos para editarlos.
   useEffect(() => {
-    setEmotion(null);
-    setReason("");
-    setGoodThings("");
-    setBadThings("");
-    setAchievedGoal("");
-    setImprovementAreas("");
-    setActionPlan("");
-    setSaving(false);
-
     if (!session || !fecha) return;
 
     obtenerRegistro(session.user.id, fecha)

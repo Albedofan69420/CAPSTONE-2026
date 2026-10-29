@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 
+import { CalendarModal } from "@/components/calendar-modal";
 import { WeekStrip, aYMD } from "@/components/week-strip";
 import { EmotionDonut } from "@/components/emotion-donut";
 import { useTheme } from "@/hooks/use-theme";
@@ -25,6 +26,7 @@ export default function Inicio() {
   const c = useTheme();
   const { session } = useAuth();
   const [fecha, setFecha] = useState(new Date());
+  const [calendarioAbierto, setCalendarioAbierto] = useState(false);
   const [registros, setRegistros] = useState<Pick<RegistroDiario, "fecha" | "emocion">[]>([]);
   const [articulos, setArticulos] = useState<Articulo[]>([]);
 
@@ -65,6 +67,16 @@ export default function Inicio() {
     <SafeAreaView style={[s.container, { backgroundColor: c.background }]}>
       <ScrollView contentContainerStyle={s.scrollContent} showsVerticalScrollIndicator={false}>
         <WeekStrip
+          selectedDate={fecha}
+          onSelectDate={setFecha}
+          markedDates={fechasConRegistro}
+          onExpand={() => setCalendarioAbierto(true)}
+        />
+
+        {/* Vista ampliada con los días que tienen registro en el diario */}
+        <CalendarModal
+          visible={calendarioAbierto}
+          onClose={() => setCalendarioAbierto(false)}
           selectedDate={fecha}
           onSelectDate={setFecha}
           markedDates={fechasConRegistro}

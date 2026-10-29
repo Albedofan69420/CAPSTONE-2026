@@ -1214,6 +1214,39 @@ export const appStyles = {
       fontWeight: "700",
       marginTop: 12,
     },
+    // Inicio del profesional (index.tsx)
+    homeContent: {
+      paddingBottom: 24,
+      gap: 24,
+    },
+    homeButton: {
+      height: 48,
+      borderRadius: 20,
+      alignItems: "center",
+      justifyContent: "center",
+      alignSelf: "center",
+      width: "70%",
+    },
+    homeButtonText: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    homeSection: {
+      gap: 10,
+    },
+    homeEmpty: {
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    homeLink: {
+      alignSelf: "center",
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+    },
+    homeLinkText: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
   }),
 
   // src/components/cita-card.tsx

@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import { useTheme } from "@/hooks/use-theme";
 
@@ -8,6 +9,10 @@ const MONTHS = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
+
+// Semanas que se pueden recorrer deslizando, contadas desde la semana actual (unos 2 años)
+const WEEKS_BEFORE = 104;
+const WEEKS_AFTER = 104;
 
 //Fecha local en formato YYYY-MM-DD para evitar desfase
 export const aYMD = (d: Date) =>
@@ -24,45 +29,51 @@ type Props = {
   onSelectDate: (date: Date) => void;
   /** Días con un registro muestran una marca */
   markedDates?: string[];
+  /** Si se pasa, muestra a la derecha el ícono que abre el calendario ampliado */
+  onExpand?: () => void;
 };
 
-export function WeekStrip({ selectedDate, onSelectDate, markedDates = [] }: Props) {
+/** Calendario de una semana. Se desliza a la izquierda o a la derecha para cambiar de semana. */
+export function WeekStrip({ selectedDate, onSelectDate, markedDates = [], onExpand }: Props) {
   const c = useTheme();
-  const [weekStart, setWeekStart] = useState(() => startOfWeek(selectedDate));
-
-  const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-  const middle = days[3];
+  const listRef = useRef<FlatList<number>>(null);
+  // Ancho de cada página: el de la pantalla menos los márgenes de la vista que lo contiene
+  const [width, setWidth] = useState(0);
   const todayKey = aYMD(new Date());
   const selectedKey = aYMD(selectedDate);
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => setWeekStart(addDays(weekStart, -7))}
-          hitSlop={12}
-          accessibilityRole="button"
-          accessibilityLabel="Semana anterior"
-        >
-          <Text style={[styles.arrow, { color: c.accent }]}>‹</Text>
-        </Pressable>
+  // La semana actual se calcula una sola vez: es el punto de referencia de la lista
+  const [baseWeek] = useState(() => startOfWeek(new Date()));
+  const weeks = useMemo(() => Array.from({ length: WEEKS_BEFORE + WEEKS_AFTER + 1 }, (_, i) => i), []);
+  const weekStartOf = (index: number) => addDays(baseWeek, (index - WEEKS_BEFORE) * 7);
+  const weekIndexOf = (date: Date) =>
+    WEEKS_BEFORE + Math.round((startOfWeek(date).getTime() - baseWeek.getTime()) / (7 * 24 * 60 * 60 * 1000));
 
-        <Text style={[styles.month, { color: c.text }]}>
-          {MONTHS[middle.getMonth()]} {middle.getFullYear()}
-        </Text>
+  const selectedIndex = Math.min(Math.max(weekIndexOf(selectedDate), 0), weeks.length - 1);
+  const [visibleIndex, setVisibleIndex] = useState(selectedIndex);
 
-        <Pressable
-          onPress={() => setWeekStart(addDays(weekStart, 7))}
-          hitSlop={12}
-          accessibilityRole="button"
-          accessibilityLabel="Semana siguiente"
-        >
-          <Text style={[styles.arrow, { color: c.accent }]}>›</Text>
-        </Pressable>
-      </View>
+  // Si el día se elige desde fuera (el calendario ampliado), se muestra su semana
+  const [prevSelectedKey, setPrevSelectedKey] = useState(selectedKey);
+  if (prevSelectedKey !== selectedKey) {
+    setPrevSelectedKey(selectedKey);
+    setVisibleIndex(selectedIndex);
+  }
 
-      <View style={styles.row}>
-        {days.map((day, index) => {
+  useEffect(() => {
+    if (width > 0) listRef.current?.scrollToIndex({ index: selectedIndex, animated: true });
+    // Solo cuando cambia el día elegido: deslizar no debe devolver la lista a esa semana
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedKey]);
+
+  // El título muestra el mes del jueves, que decide a qué mes pertenece la semana
+  const middle = addDays(weekStartOf(visibleIndex), 3);
+
+  const renderWeek = ({ item }: { item: number }) => {
+    const start = weekStartOf(item);
+
+    return (
+      <View style={[styles.row, { width }]}>
+        {Array.from({ length: 7 }, (_, i) => addDays(start, i)).map((day, index) => {
           const key = aYMD(day);
           const selected = key === selectedKey;
           const isToday = key === todayKey;
@@ -108,6 +119,52 @@ export function WeekStrip({ selectedDate, onSelectDate, markedDates = [] }: Prop
           );
         })}
       </View>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={[styles.month, { color: c.text }]}>
+          {MONTHS[middle.getMonth()]} {middle.getFullYear()}
+        </Text>
+
+        {/* Va encima del encabezado para que la fecha quede centrada */}
+        {onExpand && (
+          <Pressable
+            style={[styles.expand, { backgroundColor: c.backgroundElement }]}
+            onPress={onExpand}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Ver calendario completo"
+          >
+            <Ionicons name="calendar-outline" size={20} color={c.accent} />
+          </Pressable>
+        )}
+      </View>
+
+      <View style={styles.weeks} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+        {width > 0 && (
+          <FlatList
+            ref={listRef}
+            data={weeks}
+            keyExtractor={(item) => String(item)}
+            renderItem={renderWeek}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            initialScrollIndex={selectedIndex}
+            getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
+            onMomentumScrollEnd={(e) =>
+              setVisibleIndex(Math.round(e.nativeEvent.contentOffset.x / width))
+            }
+            // Pocas semanas en memoria: solo se ve una a la vez
+            initialNumToRender={1}
+            windowSize={3}
+            extraData={`${selectedKey}-${markedDates.join(",")}`}
+          />
+        )}
+      </View>
     </View>
   );
 }
@@ -117,19 +174,26 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   header: {
-    flexDirection: "row",
+    minHeight: 36,
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 8,
+    justifyContent: "center",
   },
-  arrow: {
-    fontSize: 32,
-    lineHeight: 34,
-    fontWeight: "600",
+  expand: {
+    position: "absolute",
+    right: 8,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
   },
   month: {
     fontSize: 18,
     fontWeight: "700",
+  },
+  // Alto de una semana (letra + círculo + marca), para reservar el espacio antes de medir el ancho
+  weeks: {
+    minHeight: 77,
   },
   row: {
     flexDirection: "row",

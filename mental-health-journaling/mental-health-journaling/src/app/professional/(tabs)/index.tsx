@@ -6,6 +6,7 @@ import { router, useFocusEffect } from "expo-router";
 
 import { CalendarModal } from "@/components/calendar-modal";
 import { CitaCard } from "@/components/cita-card";
+import { DayAppointments } from "@/components/day-appointments";
 import { WeekStrip, aYMD } from "@/components/week-strip";
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
@@ -76,6 +77,16 @@ export default function InicioProfesional() {
           selectedDate={fecha}
           onSelectDate={setFecha}
           markedDates={diasConCita}
+          dayDetail={
+            <DayAppointments
+              date={fecha}
+              citas={citas}
+              onOpenCita={(cita) => {
+                setCalendarioAbierto(false);
+                router.push({ pathname: "/cita", params: { id: cita.id } });
+              }}
+            />
+          }
         />
 
         {/* Solo mientras no haya enviado sus dos certificados a revisión */}

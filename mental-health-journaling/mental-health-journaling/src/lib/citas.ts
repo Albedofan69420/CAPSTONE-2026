@@ -42,6 +42,9 @@ export type Mensaje = {
 // Mismo límite que la restricción largo_mensaje en la base de datos
 export const MENSAJE_MAX = 300;
 
+// Las citas solo guardan la hora de inicio: el término se calcula con esta duración
+export const DURACION_CITA_MINUTOS = 60;
+
 export const ESTADO_CITA_LABEL: Record<EstadoCita, string> = {
   pendiente: "Por coordinar",
   confirmada: "Confirmada",
@@ -92,6 +95,20 @@ export const fechaHoraTexto = (fecha: string) =>
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(fecha));
+
+/** Hora en formato de 12 horas: "3:30 PM". */
+export const horaAmPm = (fecha: Date) => {
+  const horas = fecha.getHours();
+  const minutos = String(fecha.getMinutes()).padStart(2, "0");
+  return `${horas % 12 || 12}:${minutos} ${horas < 12 ? "AM" : "PM"}`;
+};
+
+/** "De 3:30 PM hasta 4:30 PM", usando la duración estándar de una cita. */
+export const rangoHorario = (inicio: string) => {
+  const desde = new Date(inicio);
+  const hasta = new Date(desde.getTime() + DURACION_CITA_MINUTOS * 60 * 1000);
+  return `De ${horaAmPm(desde)} hasta ${horaAmPm(hasta)}`;
+};
 
 /** Agrega los dos puntos mientras se escribe: 1830 -> 18:30 */
 export const formatearHoraEscrita = (texto: string) => {

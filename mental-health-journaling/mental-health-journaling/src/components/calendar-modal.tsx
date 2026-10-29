@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -43,14 +43,23 @@ type Props = {
   visible: boolean;
   onClose: () => void;
   selectedDate: Date;
-  /** Al tocar un día se elige y se cierra el calendario */
+  /** Al tocar un día se elige. Sin `dayDetail`, además se cierra el calendario */
   onSelectDate: (date: Date) => void;
   /** Días que muestran una marca (registros del diario o citas confirmadas) */
   markedDates?: string[];
+  /** Panel inferior con información del día elegido (las citas del profesional) */
+  dayDetail?: ReactNode;
 };
 
 /** Calendario ampliado por meses, que se abre desde el ícono del calendario semanal. */
-export function CalendarModal({ visible, onClose, selectedDate, onSelectDate, markedDates = [] }: Props) {
+export function CalendarModal({
+  visible,
+  onClose,
+  selectedDate,
+  onSelectDate,
+  markedDates = [],
+  dayDetail,
+}: Props) {
   const c = useTheme();
   const todayKey = aYMD(new Date());
   const selectedKey = aYMD(selectedDate);
@@ -106,7 +115,8 @@ export function CalendarModal({ visible, onClose, selectedDate, onSelectDate, ma
                 style={styles.cell}
                 onPress={() => {
                   onSelectDate(day);
-                  onClose();
+                  // Con panel inferior se queda abierto para mostrar la información del día
+                  if (!dayDetail) onClose();
                 }}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
@@ -181,6 +191,8 @@ export function CalendarModal({ visible, onClose, selectedDate, onSelectDate, ma
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
           />
+
+          {dayDetail}
         </SafeAreaView>
       </SafeAreaProvider>
     </Modal>

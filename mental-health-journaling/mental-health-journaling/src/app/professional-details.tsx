@@ -7,6 +7,7 @@ import { router, useLocalSearchParams } from "expo-router";
 
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
+import { listarMisCitas } from "@/lib/citas";
 import { urlFotoPerfil } from "@/lib/foto-perfil";
 import {
   DESCRIPCION_POR_DEFECTO,
@@ -33,6 +34,25 @@ export default function ProfessionalDetails() {
       .catch((e) => console.log("Error al cargar el profesional:", e.message))
       .finally(() => setCargando(false));
   }, [id]);
+
+  // Si ya hay una solicitud abierta con este profesional, se abre ese chat en vez de crear otra
+  const solicitarOAbrirChat = async (p: Profesional) => {
+    try {
+      const abierta = (await listarMisCitas()).find(
+        (cita) => cita.profesional_id === p.user_id && cita.estado === "pendiente"
+      );
+      if (abierta) {
+        router.push({ pathname: "/cita", params: { id: abierta.id } });
+        return;
+      }
+    } catch (e) {
+      console.log("Error al revisar las citas:", (e as Error).message);
+    }
+    router.push({
+      pathname: "/solicitar-cita",
+      params: { profesionalId: p.user_id, nombre: nombreProfesional(p) },
+    });
+  };
 
   const datos = (
     [
@@ -109,12 +129,7 @@ export default function ProfessionalDetails() {
             {/* El día y la hora se coordinan en el chat de la cita */}
             <Pressable
               style={({ pressed }) => [s.button, { backgroundColor: c.accent }, pressed && { opacity: 0.8 }]}
-              onPress={() =>
-                router.push({
-                  pathname: "/solicitar-cita",
-                  params: { profesionalId: profesional.user_id, nombre: nombreProfesional(profesional) },
-                })
-              }
+              onPress={() => solicitarOAbrirChat(profesional)}
               accessibilityRole="button"
             >
               <Ionicons name="calendar-outline" size={20} color={c.accentText} />

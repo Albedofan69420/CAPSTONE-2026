@@ -11,7 +11,7 @@ import { WeekStrip, aYMD } from "@/components/week-strip";
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
 import { mensajePlazo, obtenerEstadoProfesional, type EstadoProfesional } from "@/lib/certificados";
-import { listarMisCitas, type Cita } from "@/lib/citas";
+import { agruparPorPersona, listarMisCitas, type Cita } from "@/lib/citas";
 import { useAuth } from "@/providers/AuthProvider";
 import { useCitas } from "@/providers/CitasProvider";
 
@@ -56,10 +56,8 @@ export default function InicioProfesional() {
     .filter((cita) => cita.estado === "confirmada" && cita.fecha_confirmada)
     .map((cita) => aYMD(new Date(cita.fecha_confirmada!)));
 
-  // Una tarjeta por paciente, con su chat más reciente (mis_citas ya viene ordenada así)
-  const ultimosPacientes = citas
-    .filter((cita, i) => citas.findIndex((otra) => otra.paciente_id === cita.paciente_id) === i)
-    .slice(0, ULTIMOS_PACIENTES);
+  // Una tarjeta por paciente (un solo chat aunque tenga varias citas), con actividad reciente primero
+  const ultimosPacientes = agruparPorPersona(citas).slice(0, ULTIMOS_PACIENTES);
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: c.background }]}>

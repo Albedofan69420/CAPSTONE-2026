@@ -7,7 +7,7 @@ import { useFocusEffect } from "expo-router";
 import { CitaCard } from "@/components/cita-card";
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
-import { listarMisCitas, type Cita } from "@/lib/citas";
+import { agruparPorPersona, listarMisCitas, type Cita } from "@/lib/citas";
 import { useCitas } from "@/providers/CitasProvider";
 
 const s = appStyles.professionalTabs;
@@ -20,7 +20,8 @@ export default function Pacientes() {
 
   const recargar = useCallback(() => {
     listarMisCitas()
-      .then(setCitas)
+      // Un solo chat por paciente: cada uno aparece en la sección de su cita vigente
+      .then((lista) => setCitas(agruparPorPersona(lista)))
       .catch((e) => console.log("Error al cargar las citas:", e.message));
   }, []);
 

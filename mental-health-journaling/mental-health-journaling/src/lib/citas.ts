@@ -135,6 +135,57 @@ export const textoAFechaHora = (fecha: string, hora: string) => {
   return resultado;
 };
 
+// ---------------------------------------------------------------------------
+// Un solo chat por usuario y profesional: cada cita guarda sus propios mensajes y estado, y la app
+// junta todas las citas de la misma pareja en una conversación
+// ---------------------------------------------------------------------------
+
+const clavePareja = (cita: Pick<Cita, "paciente_id" | "profesional_id">) =>
+  `${cita.paciente_id}:${cita.profesional_id}`;
+
+export const mismaPareja = (
+  a: Pick<Cita, "paciente_id" | "profesional_id">,
+  b: Pick<Cita, "paciente_id" | "profesional_id">
+) => clavePareja(a) === clavePareja(b);
+
+/**
+ * La cita que manda en el chat: la solicitud pendiente, si no la próxima confirmada y si no
+ * la más reciente.
+ */
+export function citaVigente(citas: Cita[]) {
+  const porCreacion = [...citas].sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const ahora = new Date();
+
+  return (
+    porCreacion.find((c) => c.estado === "pendiente") ??
+    porCreacion
+      .filter((c) => c.estado === "confirmada" && c.fecha_confirmada && new Date(c.fecha_confirmada) > ahora)
+      .sort((a, b) => a.fecha_confirmada!.localeCompare(b.fecha_confirmada!))[0] ??
+    porCreacion[0] ??
+    null
+  );
+}
+
+/**
+ * Una tarjeta por persona para las listas de chats: la cita vigente de cada pareja, con los mensajes
+ * por leer de todas sus citas. Se ordenan por la última actividad.
+ */
+export function agruparPorPersona(citas: Cita[]) {
+  const grupos = new Map<string, Cita[]>();
+  for (const cita of citas) {
+    const clave = clavePareja(cita);
+    grupos.set(clave, [...(grupos.get(clave) ?? []), cita]);
+  }
+
+  return [...grupos.values()]
+    .map((grupo) => ({
+      cita: { ...citaVigente(grupo)!, no_leidos: grupo.reduce((total, c) => total + c.no_leidos, 0) },
+      ultimaActividad: grupo.reduce((max, c) => (c.updated_at > max ? c.updated_at : max), ""),
+    }))
+    .sort((a, b) => b.ultimaActividad.localeCompare(a.ultimaActividad))
+    .map((g) => g.cita);
+}
+
 export async function listarMisCitas() {
   const { data, error } = await supabase.rpc("mis_citas");
   if (error) throw error;
@@ -172,21 +223,25 @@ export async function aceptarHorario(citaId: string) {
   if (error) throw error;
 }
 
-export async function rechazarCita(citaId: string) {
-  const { error } = await supabase.rpc("rechazar_cita", { p_cita_id: citaId });
+// El motivo es obligatorio: queda en la cita y como mensaje del sistema en el chat
+export async function rechazarCita(citaId: string, motivo: string) {
+  const { error } = await supabase.rpc("rechazar_cita", { p_cita_id: citaId, p_motivo: motivo.trim() });
   if (error) throw error;
 }
 
-export async function cancelarCita(citaId: string) {
-  const { error } = await supabase.rpc("cancelar_cita", { p_cita_id: citaId });
+export async function cancelarCita(citaId: string, motivo: string) {
+  const { error } = await supabase.rpc("cancelar_cita", { p_cita_id: citaId, p_motivo: motivo.trim() });
   if (error) throw error;
 }
 
-export async function listarMensajes(citaId: string) {
+/** Mensajes de varias citas (todas las de una pareja), del más antiguo al más nuevo. */
+export async function listarMensajes(citaIds: string[]) {
+  if (citaIds.length === 0) return [];
+
   const { data, error } = await supabase
     .from("mensajes_cita")
     .select("id, cita_id, autor_id, tipo, texto, created_at")
-    .eq("cita_id", citaId)
+    .in("cita_id", citaIds)
     .order("created_at", { ascending: true });
 
   if (error) throw error;
@@ -233,25 +288,31 @@ export function escucharMisCitas(alCambiar: () => void) {
 }
 
 /**
- * Escucha en vivo los mensajes nuevos y los cambios de estado de una cita.
+ * Escucha en vivo los mensajes nuevos y los cambios de estado de las citas de una pareja
+ * (usuario y profesional), que se muestran como un solo chat.
  * Devuelve la función para dejar de escuchar.
  */
-export function escucharCita(
-  citaId: string,
+export function escucharConversacion(
+  pareja: Pick<Cita, "paciente_id" | "profesional_id">,
   alRecibirMensaje: (mensaje: Mensaje) => void,
-  alCambiarCita: () => void
+  alCambiarCitas: () => void
 ) {
   const canal = supabase
-    .channel(`cita-${citaId}`)
+    .channel(`conversacion-${clavePareja(pareja)}`)
+    // Sin filtro: las citas de la pareja pueden ser nuevas. RLS ya limita a los mensajes propios y
+    // el chat descarta los de otras conversaciones
     .on(
       "postgres_changes",
-      { event: "INSERT", schema: "public", table: "mensajes_cita", filter: `cita_id=eq.${citaId}` },
+      { event: "INSERT", schema: "public", table: "mensajes_cita" },
       (payload) => alRecibirMensaje(payload.new as Mensaje)
     )
     .on(
       "postgres_changes",
-      { event: "UPDATE", schema: "public", table: "citas", filter: `id=eq.${citaId}` },
-      () => alCambiarCita()
+      { event: "*", schema: "public", table: "citas", filter: `paciente_id=eq.${pareja.paciente_id}` },
+      (payload) => {
+        const fila = payload.new as Partial<Cita>;
+        if (fila.profesional_id === pareja.profesional_id) alCambiarCitas();
+      }
     )
     .subscribe();
 

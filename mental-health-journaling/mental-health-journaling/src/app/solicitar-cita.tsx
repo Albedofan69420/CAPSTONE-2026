@@ -29,7 +29,12 @@ const MODALIDADES: { value: Modalidad; label: string; description: string }[] = 
 // La fecha y la hora se coordinan después en el chat (src/app/cita.tsx)
 export default function SolicitarCita() {
   const c = useTheme();
-  const { profesionalId, nombre } = useLocalSearchParams<{ profesionalId: string; nombre?: string }>();
+  const { profesionalId, nombre, desdeChat } = useLocalSearchParams<{
+    profesionalId: string;
+    nombre?: string;
+    /** "1" si se abrió desde el chat con este profesional */
+    desdeChat?: string;
+  }>();
   const [modalidad, setModalidad] = useState<Modalidad | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -40,8 +45,13 @@ export default function SolicitarCita() {
     setEnviando(true);
     try {
       const citaId = await solicitarCita(profesionalId, modalidad, mensaje);
-      // replace: al volver desde el chat se regresa al perfil del profesional, no al formulario
-      router.replace({ pathname: "/cita", params: { id: citaId } });
+      if (desdeChat === "1") {
+        // Es el mismo chat (uno por usuario y profesional): se vuelve a él y la cita nueva llega en vivo
+        router.back();
+      } else {
+        // replace: al volver desde el chat se regresa al perfil del profesional, no al formulario
+        router.replace({ pathname: "/cita", params: { id: citaId } });
+      }
     } catch (e) {
       Alert.alert("No se pudo enviar la solicitud", (e as Error).message);
       setEnviando(false);

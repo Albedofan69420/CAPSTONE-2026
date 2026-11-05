@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -24,12 +24,15 @@ import {
   RESPUESTAS_RAPIDAS,
   aceptarHorario,
   cancelarCita,
+  citaVigente,
   enviarMensaje,
-  escucharCita,
+  escucharConversacion,
   fechaHoraTexto,
   formatearHoraEscrita,
   listarMensajes,
+  listarMisCitas,
   marcarCitaLeida,
+  mismaPareja,
   nombreOtro,
   obtenerCita,
   proponerHorario,
@@ -48,13 +51,18 @@ const hora = (fecha: string) =>
   new Intl.DateTimeFormat("es-CL", { hour: "2-digit", minute: "2-digit" }).format(new Date(fecha));
 
 // Chat limitado a coordinar la reserva. Lo usan el usuario y el profesional: solo se puede escribir
-// mientras la solicitud está pendiente (lo exige la base de datos, ver supabase/migrations)
+// mientras la solicitud está pendiente (lo exige la base de datos, ver supabase/migrations).
+// Hay un solo chat por usuario y profesional: muestra los mensajes de todas sus citas
 export default function ChatCita() {
   const c = useTheme();
   const { session } = useAuth();
+  // Cualquier cita de la pareja abre el mismo chat
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [cita, setCita] = useState<Cita | null>(null);
+  const [pareja, setPareja] = useState<Pick<Cita, "paciente_id" | "profesional_id"> | null>(null);
+  const [citasPareja, setCitasPareja] = useState<Cita[]>([]);
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
+  // Ids de las citas de la pareja, para saber en vivo si un mensaje nuevo es de este chat
+  const idsPareja = useRef<Set<string>>(new Set());
   // Sin id no hay nada que cargar: se muestra "No encontramos esta cita" en vez de cargar sin fin
   const [cargando, setCargando] = useState(!!id);
   const [texto, setTexto] = useState("");
@@ -64,40 +72,73 @@ export default function ChatCita() {
   const [proponiendo, setProponiendo] = useState(false);
   const [fechaTexto, setFechaTexto] = useState("");
   const [horaTexto, setHoraTexto] = useState("");
+  // Formulario del motivo al rechazar (profesional) o cancelar (cualquiera de los dos)
+  const [cierre, setCierre] = useState<"rechazar" | "cancelar" | null>(null);
+  const [motivo, setMotivo] = useState("");
+
+  // La cita que manda en el panel y en la que se escribe (ver citaVigente)
+  const cita = useMemo(() => citaVigente(citasPareja), [citasPareja]);
+
+  const cargarCitasPareja = useCallback(async (p: Pick<Cita, "paciente_id" | "profesional_id">) => {
+    const delPar = (await listarMisCitas()).filter((x) => mismaPareja(x, p));
+    idsPareja.current = new Set(delPar.map((x) => x.id));
+    setCitasPareja(delPar);
+    return delPar;
+  }, []);
 
   const recargarCita = useCallback(() => {
-    if (!id) return;
-    obtenerCita(id)
-      .then(setCita)
-      .catch((e) => console.log("Error al cargar la cita:", e.message));
-  }, [id]);
+    if (!pareja) return;
+    cargarCitasPareja(pareja).catch((e) => console.log("Error al cargar las citas:", e.message));
+  }, [pareja, cargarCitasPareja]);
+
+  // Con el chat abierto todo queda leído: al entrar y con cada mensaje que llega
+  const marcarLeida = (citaId: string) =>
+    marcarCitaLeida(citaId).catch((e) => console.log("Error al marcar la cita como leída:", e.message));
 
   useEffect(() => {
     if (!id) return;
 
-    Promise.all([obtenerCita(id), listarMensajes(id)])
-      .then(([citaCargada, lista]) => {
-        setCita(citaCargada);
-        setMensajes(lista);
+    obtenerCita(id)
+      .then(async (inicial) => {
+        if (!inicial) return;
+        const p = { paciente_id: inicial.paciente_id, profesional_id: inicial.profesional_id };
+        const delPar = await cargarCitasPareja(p);
+        setMensajes(await listarMensajes(delPar.map((x) => x.id)));
+        setPareja(p);
+        delPar.filter((x) => x.no_leidos > 0).forEach((x) => marcarLeida(x.id));
       })
-      .catch((e) => Alert.alert("No se pudo cargar la cita", e.message))
+      .catch((e) => Alert.alert("No se pudo cargar el chat", e.message))
       .finally(() => setCargando(false));
+  }, [id, cargarCitasPareja]);
 
-    // Con el chat abierto todo queda leído: al entrar y con cada mensaje que llega
-    const marcarLeida = () =>
-      marcarCitaLeida(id).catch((e) => console.log("Error al marcar la cita como leída:", e.message));
-    marcarLeida();
+  // Mensajes y cambios de estado en vivo (por ejemplo, cuando el otro propone o acepta un horario)
+  useEffect(() => {
+    if (!pareja) return;
 
-    // Mensajes y cambios de estado en vivo (por ejemplo, cuando el otro propone o acepta un horario)
-    return escucharCita(
-      id,
+    const agregar = (nuevo: Mensaje) => {
+      setMensajes((lista) => (lista.some((m) => m.id === nuevo.id) ? lista : [...lista, nuevo]));
+      if (nuevo.autor_id !== session?.user.id) marcarLeida(nuevo.cita_id);
+    };
+
+    return escucharConversacion(
+      pareja,
       (nuevo) => {
-        setMensajes((lista) => (lista.some((m) => m.id === nuevo.id) ? lista : [...lista, nuevo]));
-        if (nuevo.autor_id !== session?.user.id) marcarLeida();
+        if (idsPareja.current.has(nuevo.cita_id)) {
+          agregar(nuevo);
+          return;
+        }
+        // Puede ser de una cita nueva de la misma pareja (por ejemplo, una segunda solicitud)
+        obtenerCita(nuevo.cita_id)
+          .then(async (otra) => {
+            if (!otra || !mismaPareja(otra, pareja)) return;
+            await cargarCitasPareja(pareja);
+            agregar(nuevo);
+          })
+          .catch((e) => console.log("Error al revisar el mensaje nuevo:", e.message));
       },
       recargarCita
     );
-  }, [id, recargarCita, session?.user.id]);
+  }, [pareja, session?.user.id, cargarCitasPareja, recargarCita]);
 
   // La lista va invertida para que empiece desde abajo, como en cualquier chat
   const invertidos = useMemo(() => [...mensajes].reverse(), [mensajes]);
@@ -108,11 +149,12 @@ export default function ChatCita() {
     !!cita?.fecha_propuesta && new Date(cita.fecha_propuesta) > new Date();
 
   const enviar = async (contenido = texto) => {
-    if (!id || !contenido.trim() || enviando) return;
+    if (!cita || !contenido.trim() || enviando) return;
 
     setEnviando(true);
     try {
-      const nuevo = await enviarMensaje(id, contenido);
+      // Se escribe en la cita vigente (la base de datos solo lo permite si está pendiente)
+      const nuevo = await enviarMensaje(cita.id, contenido);
       setMensajes((lista) => (lista.some((m) => m.id === nuevo.id) ? lista : [...lista, nuevo]));
       setTexto("");
     } catch (e) {
@@ -160,34 +202,82 @@ export default function ChatCita() {
     );
   };
 
-  const confirmarRechazo = () => {
-    Alert.alert("Rechazar solicitud", "El chat se cerrará y el usuario verá la solicitud como rechazada.", [
-      { text: "Volver", style: "cancel" },
-      {
-        text: "Rechazar",
-        style: "destructive",
-        onPress: () => ejecutar(() => rechazarCita(cita!.id), "No se pudo rechazar la solicitud"),
-      },
-    ]);
-  };
+  // Rechazar y cancelar piden un motivo, que la otra persona ve en el chat
+  const confirmarRechazo = () => setCierre("rechazar");
+  const confirmarCancelacion = () => setCierre("cancelar");
 
-  const confirmarCancelacion = () => {
-    Alert.alert(
-      cita?.estado === "confirmada" ? "Cancelar cita" : "Cancelar solicitud",
-      "Esta acción no se puede deshacer.",
-      [
-        { text: "Volver", style: "cancel" },
-        {
-          text: "Cancelar",
-          style: "destructive",
-          onPress: () => ejecutar(() => cancelarCita(cita!.id), "No se pudo cancelar"),
-        },
-      ]
-    );
+  const cerrarCita = () => {
+    if (!cierre) return;
+    if (!motivo.trim()) {
+      Alert.alert("Motivo requerido", "Explica brevemente por qué cierras esta cita.");
+      return;
+    }
+    ejecutar(async () => {
+      if (cierre === "rechazar") await rechazarCita(cita!.id, motivo);
+      else await cancelarCita(cita!.id, motivo);
+      setCierre(null);
+      setMotivo("");
+    }, cierre === "rechazar" ? "No se pudo rechazar la solicitud" : "No se pudo cancelar");
   };
 
   const panel = () => {
     if (!cita) return null;
+
+    if (cierre) {
+      const titulo =
+        cierre === "rechazar"
+          ? "Rechazar solicitud"
+          : cita.estado === "confirmada"
+            ? "Cancelar cita"
+            : "Cancelar solicitud";
+
+      return (
+        <>
+          <Text style={[s.panelTitle, { color: c.text }]}>{titulo}</Text>
+          <Text style={[s.panelText, { color: c.textSecondary }]}>
+            Escribe el motivo. {esProfesional ? "El usuario" : "El profesional"} lo verá en el chat y
+            esta acción no se puede deshacer.
+          </Text>
+          <TextInput
+            style={[s.motivoInput, { color: c.text, borderColor: c.border }]}
+            value={motivo}
+            onChangeText={setMotivo}
+            placeholder={
+              cierre === "rechazar"
+                ? "Ej.: No tengo horarios disponibles este mes."
+                : "Ej.: Me surgió un imprevisto ese día."
+            }
+            placeholderTextColor={c.textSecondary}
+            maxLength={MENSAJE_MAX}
+            multiline
+            autoFocus
+            accessibilityLabel="Motivo"
+          />
+          <View style={s.actions}>
+            <Pressable
+              style={[s.action, s.actionOutline, { borderColor: c.border }]}
+              onPress={() => {
+                setCierre(null);
+                setMotivo("");
+              }}
+              accessibilityRole="button"
+            >
+              <Text style={[s.actionText, { color: c.textSecondary }]}>Volver</Text>
+            </Pressable>
+            <Pressable
+              style={[s.action, { backgroundColor: c.error }, (ocupado || !motivo.trim()) && { opacity: 0.5 }]}
+              onPress={cerrarCita}
+              disabled={ocupado || !motivo.trim()}
+              accessibilityRole="button"
+            >
+              <Text style={[s.actionText, { color: c.background }]}>
+                {cierre === "rechazar" ? "Rechazar" : "Cancelar"}
+              </Text>
+            </Pressable>
+          </View>
+        </>
+      );
+    }
 
     if (cita.estado === "confirmada" && cita.fecha_confirmada) {
       return (
@@ -215,8 +305,26 @@ export default function ChatCita() {
         <>
           <Text style={[s.panelTitle, { color: c.text }]}>{ESTADO_CITA_LABEL[cita.estado]}</Text>
           <Text style={[s.panelText, { color: c.textSecondary }]}>
-            Esta solicitud está cerrada.{esProfesional ? "" : " Puedes enviar una nueva desde el perfil del profesional."}
+            {esProfesional
+              ? "No hay solicitudes abiertas con este paciente."
+              : "No tienes solicitudes abiertas. Si pides una nueva cita, seguirá en este mismo chat."}
           </Text>
+          {!esProfesional && (
+            <View style={s.actions}>
+              <Pressable
+                style={[s.action, { backgroundColor: c.accent }]}
+                onPress={() =>
+                  router.push({
+                    pathname: "/solicitar-cita",
+                    params: { profesionalId: cita.profesional_id, nombre: nombreOtro(cita), desdeChat: "1" },
+                  })
+                }
+                accessibilityRole="button"
+              >
+                <Text style={[s.actionText, { color: c.accentText }]}>Solicitar nueva cita</Text>
+              </Pressable>
+            </View>
+          )}
         </>
       );
     }

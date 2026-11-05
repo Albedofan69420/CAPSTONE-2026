@@ -1486,6 +1486,18 @@ export const appStyles = {
       paddingHorizontal: 12,
       fontSize: 15,
     },
+    // Motivo al rechazar o cancelar una cita
+    motivoInput: {
+      minHeight: 80,
+      maxHeight: 140,
+      borderWidth: 1,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingTop: 10,
+      paddingBottom: 10,
+      fontSize: 15,
+      textAlignVertical: "top",
+    },
     // Mensajes
     list: {
       flex: 1,

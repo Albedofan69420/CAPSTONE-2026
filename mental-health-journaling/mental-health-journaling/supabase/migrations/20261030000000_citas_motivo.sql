@@ -6,6 +6,14 @@ alter table public.citas
   add column motivo_cierre text
     constraint largo_motivo_cierre check (char_length(motivo_cierre) <= 300);
 
+-- El mensaje del sistema lleva el motivo (hasta 300) más un texto como "El profesional rechazó la
+-- solicitud. Motivo: ", así que puede pasar de 300. Los mensajes del chat siguen limitados a 300
+alter table public.mensajes_cita
+  drop constraint largo_mensaje,
+  add constraint largo_mensaje check (
+    char_length(btrim(texto)) between 1 and (case when tipo = 'sistema' then 500 else 300 end)
+  );
+
 -- Cambian los parámetros: se reemplazan las versiones sin motivo
 drop function public.rechazar_cita(uuid);
 drop function public.cancelar_cita(uuid);

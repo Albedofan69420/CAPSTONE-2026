@@ -1589,16 +1589,26 @@ export const appStyles = {
       fontSize: 13,
       lineHeight: 18,
     },
+    // En iOS el contenido de un ScrollView horizontal puede estirarse en el eje vertical.
+    // Se fija la altura de esta franja para que las respuestas sigan siendo chips compactos.
+    quickRepliesScroll: {
+      height: 46,
+      flexGrow: 0,
+      flexShrink: 0,
+    },
     quickReplies: {
       paddingHorizontal: 12,
-      paddingBottom: 8,
+      paddingVertical: 5,
       gap: 8,
+      alignItems: "center",
     },
     quickReply: {
+      height: 36,
       paddingHorizontal: 12,
-      paddingVertical: 7,
       borderRadius: 16,
       borderWidth: 1,
+      alignItems: "center",
+      justifyContent: "center",
     },
     quickReplyText: {
       fontSize: 13,

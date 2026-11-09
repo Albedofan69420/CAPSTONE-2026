@@ -528,6 +528,7 @@ export default function ChatCita() {
 
               <ScrollView
                 horizontal
+                style={s.quickRepliesScroll}
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={s.quickReplies}
                 keyboardShouldPersistTaps="handled"

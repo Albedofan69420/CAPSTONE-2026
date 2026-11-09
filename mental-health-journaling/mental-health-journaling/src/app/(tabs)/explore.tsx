@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
@@ -20,6 +20,12 @@ const s = appStyles.profesionales;
 
 export default function Profesionales() {
   const c = useTheme();
+  const params = useLocalSearchParams<{
+    region?: string;
+    comuna?: string;
+    tipoAtencion?: string;
+    especialidad?: string;
+  }>();
   const [busqueda, setBusqueda] = useState("");
   const [profesionales, setProfesionales] = useState<Profesional[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -34,11 +40,17 @@ export default function Profesionales() {
     }, [])
   );
 
-  const filtrados = profesionales.filter((p) =>
-    `${nombreProfesional(p)} ${p.especialidad ?? ""}`
+  const filtrosActivos = [params.region, params.comuna, params.tipoAtencion, params.especialidad].filter(Boolean).length;
+  const filtrados = profesionales.filter((p) => {
+    const coincideBusqueda = `${nombreProfesional(p)} ${p.especialidad ?? ""}`
       .toLowerCase()
-      .includes(busqueda.trim().toLowerCase())
-  );
+      .includes(busqueda.trim().toLowerCase());
+    const coincideRegion = !params.region || p.region === params.region;
+    const coincideComuna = !params.comuna || p.comuna === params.comuna;
+    const coincideEspecialidad = !params.especialidad || p.especialidad === params.especialidad;
+
+    return coincideBusqueda && coincideRegion && coincideComuna && coincideEspecialidad;
+  });
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: c.background }]}>
@@ -63,11 +75,22 @@ export default function Profesionales() {
             { backgroundColor: c.accent },
             pressed && { opacity: 0.8 },
           ]}
-          onPress={() => router.push("/filters")}
+          onPress={() =>
+            router.push({
+              pathname: "/filters",
+              params: {
+                ...(params.region ? { region: params.region } : {}),
+                ...(params.comuna ? { comuna: params.comuna } : {}),
+                ...(params.tipoAtencion ? { tipoAtencion: params.tipoAtencion } : {}),
+                ...(params.especialidad ? { especialidad: params.especialidad } : {}),
+              },
+            })
+          }
           accessibilityRole="button"
-          accessibilityLabel="Filtrar"
+          accessibilityLabel={filtrosActivos ? `Filtrar, ${filtrosActivos} filtros activos` : "Filtrar"}
         >
           <Ionicons name="options-outline" size={22} color={c.accentText} />
+          {filtrosActivos > 0 && <View style={[s.filterBadge, { backgroundColor: c.error }]} />}
         </Pressable>
       </View>
 
@@ -80,8 +103,8 @@ export default function Profesionales() {
             <ActivityIndicator color={c.accent} />
           ) : (
             <Text style={[s.emptyText, { color: c.textSecondary }]}>
-              {busqueda.trim()
-                ? "No encontramos profesionales con esa búsqueda."
+              {busqueda.trim() || filtrosActivos
+                ? "No encontramos profesionales con esos criterios."
                 : "Aún no hay profesionales disponibles."}
             </Text>
           )

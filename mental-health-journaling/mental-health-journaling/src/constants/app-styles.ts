@@ -233,6 +233,14 @@ export const appStyles = {
       alignItems: "center",
       justifyContent: "center",
     },
+    filterBadge: {
+      position: "absolute",
+      top: 5,
+      right: 5,
+      width: 9,
+      height: 9,
+      borderRadius: 5,
+    },
     list: {
       gap: 12,
       paddingBottom: 110,
@@ -523,6 +531,34 @@ export const appStyles = {
       paddingHorizontal: 20,
       paddingBottom: 32,
       gap: 20,
+    },
+    actions: {
+      flexDirection: "row",
+      gap: 12,
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      borderTopWidth: 1,
+    },
+    clearButton: {
+      height: 48,
+      paddingHorizontal: 18,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    clearButtonText: {
+      fontSize: 16,
+      fontWeight: "600",
+    },
+    applyButton: {
+      flex: 1,
+      height: 48,
+      borderRadius: 24,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    applyButtonText: {
+      fontSize: 16,
+      fontWeight: "700",
     },
   }),
 

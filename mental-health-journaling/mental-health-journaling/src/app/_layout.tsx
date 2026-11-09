@@ -80,6 +80,7 @@ function RootNavigator() {
           La pantalla inicial de cada cuenta la define "destino", no el orden de esta lista */}
       <Stack.Protected guard={isReady && !isAdmin} redirectTo={destino}>
         <Stack.Screen name="personal-data" />
+        <Stack.Screen name="privacy-security" />
         {/* Chat de la reserva: el profesional llega desde Pacientes y el usuario desde Citas */}
         <Stack.Screen name="cita" />
       </Stack.Protected>

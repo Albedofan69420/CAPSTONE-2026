@@ -499,6 +499,95 @@ export const appStyles = {
     },
   }),
 
+  // src/app/privacy-security.tsx
+  privacidad: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+      paddingTop: 8,
+    },
+    backSpace: {
+      width: 44,
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    scrollContent: {
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 32,
+      gap: 28,
+    },
+    notice: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 10,
+      padding: 14,
+      borderRadius: 14,
+    },
+    noticeText: {
+      flex: 1,
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    section: {
+      gap: 10,
+    },
+    sectionTitle: {
+      fontSize: 17,
+      fontWeight: "700",
+    },
+    list: {
+      gap: 10,
+    },
+    card: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: 14,
+      borderRadius: 16,
+      gap: 12,
+    },
+    icon: {
+      width: 42,
+      height: 42,
+      borderRadius: 21,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    cardInfo: {
+      flex: 1,
+      gap: 3,
+    },
+    cardTitle: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    cardDescription: {
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    soon: {
+      fontSize: 11,
+      fontWeight: "600",
+      paddingHorizontal: 8,
+      paddingVertical: 5,
+      borderRadius: 10,
+      overflow: "hidden",
+    },
+  }),
+
   // src/app/filters.tsx
   filtros: StyleSheet.create({
     container: {

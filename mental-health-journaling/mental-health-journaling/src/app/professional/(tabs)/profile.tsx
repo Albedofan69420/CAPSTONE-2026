@@ -50,6 +50,7 @@ const AJUSTES: Ajuste[] = [
     titulo: "Privacidad y seguridad",
     descripcion: "Contraseña y bloqueo de la app",
     icono: "lock-closed-outline",
+    ruta: "/privacy-security",
   },
 ];
 

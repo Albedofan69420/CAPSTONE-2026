@@ -32,7 +32,7 @@ const ACCESO: Opcion[] = [
 const PRIVACIDAD: Opcion[] = [
   {
     titulo: "Mi diario",
-    descripcion: "Tus registros diarios son privados y solo tú puedes verlos.",
+    descripcion: "Tu emoción alimenta el dashboard terapéutico. El texto solo se comparte cuando tú lo autorizas.",
     icono: "book-outline",
   },
 ];

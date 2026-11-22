@@ -4,8 +4,8 @@ import { useTabBar } from "@/components/tab-bar";
 import { useCitas } from "@/providers/CitasProvider";
 
 export default function TabsLayout() {
-  // La pestaña Citas aparece cuando el usuario ya solicitó al menos una cita
-  const { totalCitas, noLeidos } = useCitas();
+  // La pestaña aparece cuando el profesional ya agendó al menos una cita.
+  const { totalCitas } = useCitas();
   const conCitas = totalCitas > 0;
   // Estilo de la barra compartido con el menú del profesional (src/components/tab-bar.tsx)
   const { screenOptions, tabIcon } = useTabBar(conCitas ? 4 : 3);
@@ -23,18 +23,17 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Profesionales",
-          tabBarIcon: tabIcon("search", "search-outline"),
+          title: "Mi psicólogo",
+          tabBarIcon: tabIcon("person-circle", "person-circle-outline"),
         }}
       />
 
-      {/* Chats de las citas, con el círculo rojo de mensajes por leer */}
+      {/* Agenda e historial de citas del paciente. */}
       <Tabs.Screen
         name="citas"
         options={{
           title: "Citas",
-          tabBarIcon: tabIcon("chatbubbles", "chatbubbles-outline"),
-          tabBarBadge: noLeidos > 0 ? (noLeidos > 99 ? "99+" : noLeidos) : undefined,
+          tabBarIcon: tabIcon("calendar", "calendar-outline"),
           // Se oculta solo el botón. Con href: null, Expo Router 58 trata la pestaña como oculta y
           // redirige a Inicio a quien esté en ella (por ejemplo, mientras carga el resumen de citas)
           tabBarItemStyle: conCitas ? undefined : { display: "none" },

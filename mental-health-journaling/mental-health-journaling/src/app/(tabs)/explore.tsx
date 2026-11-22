@@ -1,150 +1,146 @@
-import { useCallback, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { router, useFocusEffect } from "expo-router";
 
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-
-import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
+import { useTheme } from "@/hooks/use-theme";
 import { urlFotoPerfil } from "@/lib/foto-perfil";
 import {
-  ESPECIALIDAD_POR_DEFECTO,
-  listarProfesionales,
-  nombreProfesional,
-  type Profesional,
-} from "@/lib/profesionales";
+  escucharVinculaciones,
+  obtenerMiProfesionalVinculado,
+  type ProfesionalVinculado,
+} from "@/lib/vinculaciones";
 
-const s = appStyles.profesionales;
+const s = appStyles.psicologoVinculado;
 
-export default function Profesionales() {
-  const c = useTheme();
-  const params = useLocalSearchParams<{
-    region?: string;
-    comuna?: string;
-    tipoAtencion?: string;
-    especialidad?: string;
-  }>();
-  const [busqueda, setBusqueda] = useState("");
-  const [profesionales, setProfesionales] = useState<Profesional[]>([]);
-  const [cargando, setCargando] = useState(true);
+const nombreCompleto = (profesional: ProfesionalVinculado) =>
+  [profesional.nombre, profesional.apellido].filter(Boolean).join(" ") || "Profesional de la salud";
 
-  // Solo llegan los profesionales con sus dos certificados aprobados (lo filtra la base de datos)
-  useFocusEffect(
-    useCallback(() => {
-      listarProfesionales()
-        .then(setProfesionales)
-        .catch((e) => console.log("Error al cargar los profesionales:", e.message))
-        .finally(() => setCargando(false));
-    }, [])
+const fechaTexto = (fecha: string) =>
+  new Intl.DateTimeFormat("es-CL", { day: "numeric", month: "long", year: "numeric" }).format(
+    new Date(fecha)
   );
 
-  const filtrosActivos = [params.region, params.comuna, params.tipoAtencion, params.especialidad].filter(Boolean).length;
-  const filtrados = profesionales.filter((p) => {
-    const coincideBusqueda = `${nombreProfesional(p)} ${p.especialidad ?? ""}`
-      .toLowerCase()
-      .includes(busqueda.trim().toLowerCase());
-    const coincideRegion = !params.region || p.region === params.region;
-    const coincideComuna = !params.comuna || p.comuna === params.comuna;
-    const coincideEspecialidad = !params.especialidad || p.especialidad === params.especialidad;
+export default function MiPsicologo() {
+  const c = useTheme();
+  const [profesional, setProfesional] = useState<ProfesionalVinculado | null>(null);
+  const [cargando, setCargando] = useState(true);
 
-    return coincideBusqueda && coincideRegion && coincideComuna && coincideEspecialidad;
-  });
+  const cargar = useCallback(async () => {
+    try {
+      setProfesional(await obtenerMiProfesionalVinculado());
+    } catch (error) {
+      Alert.alert("No se pudo cargar tu psicólogo", (error as Error).message);
+    } finally {
+      setCargando(false);
+    }
+  }, []);
+
+  useFocusEffect(useCallback(() => void cargar(), [cargar]));
+  useEffect(() => escucharVinculaciones(() => void cargar()), [cargar]);
+
+  const ubicacion = profesional
+    ? [profesional.comuna, profesional.region].filter(Boolean).join(", ")
+    : "";
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: c.background }]}>
-      <Text style={[s.title, { color: c.text }]}>Profesionales</Text>
+      <Text style={[s.title, { color: c.text }]}>Mi psicólogo</Text>
 
-      <View style={s.searchRow}>
-        <View style={[s.searchBar, { backgroundColor: c.backgroundElement }]}>
-          <Ionicons name="search" size={20} color={c.textSecondary} />
-          <TextInput
-            style={[s.searchInput, { color: c.text }]}
-            placeholder="Buscar profesional"
-            placeholderTextColor={c.textSecondary}
-            value={busqueda}
-            onChangeText={setBusqueda}
-            returnKeyType="search"
-          />
+      {cargando ? (
+        <View style={s.center}>
+          <ActivityIndicator size="large" color={c.accent} />
         </View>
-
-        <Pressable
-          style={({ pressed }) => [
-            s.filterButton,
-            { backgroundColor: c.accent },
-            pressed && { opacity: 0.8 },
-          ]}
-          onPress={() =>
-            router.push({
-              pathname: "/filters",
-              params: {
-                ...(params.region ? { region: params.region } : {}),
-                ...(params.comuna ? { comuna: params.comuna } : {}),
-                ...(params.tipoAtencion ? { tipoAtencion: params.tipoAtencion } : {}),
-                ...(params.especialidad ? { especialidad: params.especialidad } : {}),
-              },
-            })
-          }
-          accessibilityRole="button"
-          accessibilityLabel={filtrosActivos ? `Filtrar, ${filtrosActivos} filtros activos` : "Filtrar"}
-        >
-          <Ionicons name="options-outline" size={22} color={c.accentText} />
-          {filtrosActivos > 0 && <View style={[s.filterBadge, { backgroundColor: c.error }]} />}
-        </Pressable>
-      </View>
-
-      <FlatList
-        data={filtrados}
-        keyExtractor={(item) => item.user_id}
-        contentContainerStyle={s.list}
-        ListEmptyComponent={
-          cargando ? (
-            <ActivityIndicator color={c.accent} />
-          ) : (
-            <Text style={[s.emptyText, { color: c.textSecondary }]}>
-              {busqueda.trim() || filtrosActivos
-                ? "No encontramos profesionales con esos criterios."
-                : "Aún no hay profesionales disponibles."}
-            </Text>
-          )
-        }
-        renderItem={({ item }) => {
-          const nombre = nombreProfesional(item);
-          const especialidad = item.especialidad || ESPECIALIDAD_POR_DEFECTO;
-          return (
-            <Pressable
-              style={({ pressed }) => [
-                s.card,
-                { backgroundColor: c.backgroundElement },
-                pressed && { opacity: 0.8 },
-              ]}
-              onPress={() =>
-                router.push({ pathname: "/professional-details", params: { id: item.user_id } })
-              }
-              accessibilityRole="button"
-              accessibilityLabel={`Ver perfil de ${nombre}, ${especialidad}`}
-            >
-              {item.foto_path ? (
+      ) : !profesional ? (
+        <View style={s.center}>
+          <View style={[s.emptyIcon, { backgroundColor: c.backgroundElement }]}>
+            <Ionicons name="person-add-outline" size={38} color={c.accent} />
+          </View>
+          <Text style={[s.emptyTitle, { color: c.text }]}>Aún no tienes un psicólogo vinculado</Text>
+          <Text style={[s.emptyText, { color: c.textSecondary }]}>
+            Tu profesional debe enviarte un enlace o código de invitación para vincular las cuentas.
+          </Text>
+          <Pressable
+            style={({ pressed }) => [s.primaryButton, { backgroundColor: c.accent }, pressed && { opacity: 0.8 }]}
+            onPress={() => router.push("/invitation")}
+            accessibilityRole="button"
+          >
+            <Ionicons name="link-outline" size={20} color={c.accentText} />
+            <Text style={[s.primaryButtonText, { color: c.accentText }]}>Ingresar invitación</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+          <View style={[s.profileCard, { backgroundColor: c.backgroundElement }]}>
+            <View style={[s.avatar, { backgroundColor: c.backgroundSelected }]}>
+              {profesional.foto_path ? (
                 <Image
-                  source={{ uri: urlFotoPerfil(item.foto_path) ?? undefined }}
-                  style={s.photo}
+                  source={{ uri: urlFotoPerfil(profesional.foto_path) ?? undefined }}
+                  style={s.avatarImage}
                   contentFit="cover"
                 />
               ) : (
-                <View style={[s.photo, s.photoPlaceholder, { backgroundColor: c.backgroundSelected }]}>
-                  <Ionicons name="person" size={32} color={c.textSecondary} />
-                </View>
+                <Ionicons name="person" size={55} color={c.textSecondary} />
               )}
-              <View style={s.cardInfo}>
-                <Text style={[s.name, { color: c.text }]}>{nombre}</Text>
-                <Text style={[s.profession, { color: c.textSecondary }]}>{especialidad}</Text>
+            </View>
+            <Text style={[s.name, { color: c.text }]}>{nombreCompleto(profesional)}</Text>
+            <Text style={[s.specialty, { color: c.textSecondary }]}>
+              {profesional.especialidad || "Profesional de la salud"}
+            </Text>
+            <View style={[s.activeBadge, { backgroundColor: `${c.accent}26` }]}>
+              <View style={[s.activeDot, { backgroundColor: c.accent }]} />
+              <Text style={[s.activeText, { color: c.accent }]}>Vinculación activa</Text>
+            </View>
+          </View>
+
+          <View style={[s.infoCard, { backgroundColor: c.backgroundElement }]}>
+            <View style={s.infoRow}>
+              <Ionicons name="calendar-outline" size={20} color={c.accent} />
+              <View style={s.infoContent}>
+                <Text style={[s.infoLabel, { color: c.textSecondary }]}>Vinculado desde</Text>
+                <Text style={[s.infoValue, { color: c.text }]}>{fechaTexto(profesional.vinculada_at)}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color={c.textSecondary} />
-            </Pressable>
-          );
-        }}
-      />
+            </View>
+            {profesional.email && (
+              <View style={s.infoRow}>
+                <Ionicons name="mail-outline" size={20} color={c.accent} />
+                <View style={s.infoContent}>
+                  <Text style={[s.infoLabel, { color: c.textSecondary }]}>Correo electrónico</Text>
+                  <Text style={[s.infoValue, { color: c.text }]}>{profesional.email}</Text>
+                </View>
+              </View>
+            )}
+            {!!ubicacion && (
+              <View style={s.infoRow}>
+                <Ionicons name="location-outline" size={20} color={c.accent} />
+                <View style={s.infoContent}>
+                  <Text style={[s.infoLabel, { color: c.textSecondary }]}>Ubicación</Text>
+                  <Text style={[s.infoValue, { color: c.text }]}>{ubicacion}</Text>
+                </View>
+              </View>
+            )}
+          </View>
+
+          <View style={s.section}>
+            <Text style={[s.sectionTitle, { color: c.text }]}>Sobre el profesional</Text>
+            <View style={[s.descriptionCard, { backgroundColor: c.backgroundElement }]}>
+              <Text style={[s.description, { color: c.textSecondary }]}>
+                {profesional.descripcion || "Este profesional aún no ha agregado una descripción."}
+              </Text>
+            </View>
+          </View>
+
+          <View style={[s.notice, { borderColor: c.border }]}>
+            <Ionicons name="information-circle-outline" size={21} color={c.accent} />
+            <Text style={[s.noticeText, { color: c.textSecondary }]}>
+              Las citas y la información terapéutica se incorporarán en la siguiente etapa.
+            </Text>
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }

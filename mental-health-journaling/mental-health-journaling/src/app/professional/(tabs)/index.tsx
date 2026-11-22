@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
@@ -11,16 +11,13 @@ import { WeekStrip, aYMD } from "@/components/week-strip";
 import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
 import { mensajePlazo, obtenerEstadoProfesional, type EstadoProfesional } from "@/lib/certificados";
-import { agruparPorPersona, listarMisCitas, type Cita } from "@/lib/citas";
+import { listarMisCitas, type Cita } from "@/lib/citas";
 import { useAuth } from "@/providers/AuthProvider";
 import { useCitas } from "@/providers/CitasProvider";
 
 const s = appStyles.professionalTabs;
 
-// Cantidad de pacientes que se muestran en "Últimos pacientes"
-const ULTIMOS_PACIENTES = 3;
-
-const proximamente = (titulo: string) => Alert.alert(titulo, "Esta opción estará disponible pronto.");
+const PROXIMAS_CITAS = 3;
 
 export default function InicioProfesional() {
   const c = useTheme();
@@ -47,7 +44,7 @@ export default function InicioProfesional() {
       .catch((e) => console.log("Error al cargar las citas:", e.message));
   }, []);
 
-  // Al entrar a la pestaña y cada vez que llega un mensaje o cambia una cita
+  // Al entrar a la pestaña y cada vez que cambia una cita.
   useFocusEffect(recargarCitas);
   useEffect(recargarCitas, [version, recargarCitas]);
 
@@ -56,8 +53,10 @@ export default function InicioProfesional() {
     .filter((cita) => cita.estado === "confirmada" && cita.fecha_confirmada)
     .map((cita) => aYMD(new Date(cita.fecha_confirmada!)));
 
-  // Una tarjeta por paciente (un solo chat aunque tenga varias citas), con actividad reciente primero
-  const ultimosPacientes = agruparPorPersona(citas).slice(0, ULTIMOS_PACIENTES);
+  const proximasCitas = citas
+    .filter((cita) => cita.estado === "confirmada" && cita.fecha_confirmada && new Date(cita.fecha_confirmada) >= new Date())
+    .sort((a, b) => a.fecha_confirmada!.localeCompare(b.fecha_confirmada!))
+    .slice(0, PROXIMAS_CITAS);
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: c.background }]}>
@@ -110,33 +109,31 @@ export default function InicioProfesional() {
           </Pressable>
         )}
 
-        {/* TODO: pantalla de agenda del profesional */}
         <Pressable
           style={({ pressed }) => [s.homeButton, { backgroundColor: c.accent }, pressed && { opacity: 0.8 }]}
-          onPress={() => proximamente("Mi agenda")}
+          onPress={() => setCalendarioAbierto(true)}
           accessibilityRole="button"
         >
           <Text style={[s.homeButtonText, { color: c.accentText }]}>Ver mi agenda</Text>
         </Pressable>
 
         <View style={s.homeSection}>
-          <Text style={[s.sectionLabel, { color: c.text }]}>Últimos pacientes</Text>
+          <Text style={[s.sectionLabel, { color: c.text }]}>Próximas citas</Text>
 
-          {ultimosPacientes.length === 0 ? (
+          {proximasCitas.length === 0 ? (
             <Text style={[s.homeEmpty, { color: c.textSecondary }]}>
-              Aquí aparecerán los pacientes con los que tengas un chat de cita.
+              Aún no tienes citas próximas. Puedes agendarlas desde la ficha de un paciente.
             </Text>
           ) : (
-            ultimosPacientes.map((cita) => <CitaCard key={cita.id} cita={cita} />)
+            proximasCitas.map((cita) => <CitaCard key={cita.id} cita={cita} />)
           )}
 
-          {/* TODO: lista completa de pacientes */}
           <Pressable
             style={({ pressed }) => [s.homeLink, pressed && { opacity: 0.6 }]}
-            onPress={() => proximamente("Pacientes")}
+            onPress={() => router.push("/professional/(tabs)/patients")}
             accessibilityRole="button"
           >
-            <Text style={[s.homeLinkText, { color: c.accent }]}>Ver más</Text>
+            <Text style={[s.homeLinkText, { color: c.accent }]}>Ir a mis pacientes</Text>
           </Pressable>
         </View>
       </ScrollView>

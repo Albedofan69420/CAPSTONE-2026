@@ -1,64 +1,81 @@
-import { useCallback, useEffect, useState } from "react";
-import { SectionList, Text, View } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Alert, Pressable, SectionList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 
-import { CitaCard } from "@/components/cita-card";
-import { useTheme } from "@/hooks/use-theme";
+import { PatientCard } from "@/components/patient-card";
 import { appStyles } from "@/constants/app-styles";
-import { agruparPorPersona, listarMisCitas, type Cita } from "@/lib/citas";
-import { useCitas } from "@/providers/CitasProvider";
+import { useTheme } from "@/hooks/use-theme";
+import {
+  escucharVinculaciones,
+  listarMisPacientes,
+  type PacienteVinculado,
+} from "@/lib/vinculaciones";
 
 const s = appStyles.professionalTabs;
 
-// Solicitudes por coordinar, citas confirmadas y el historial del profesional
 export default function Pacientes() {
   const c = useTheme();
-  const { version } = useCitas();
-  const [citas, setCitas] = useState<Cita[]>([]);
+  const [pacientes, setPacientes] = useState<PacienteVinculado[]>([]);
+  const [cargando, setCargando] = useState(true);
 
-  const recargar = useCallback(() => {
-    listarMisCitas()
-      // Un solo chat por paciente: cada uno aparece en la sección de su cita vigente
-      .then((lista) => setCitas(agruparPorPersona(lista)))
-      .catch((e) => console.log("Error al cargar las citas:", e.message));
+  const recargar = useCallback(async () => {
+    try {
+      setPacientes(await listarMisPacientes());
+    } catch (error) {
+      Alert.alert("No se pudieron cargar los pacientes", (error as Error).message);
+    } finally {
+      setCargando(false);
+    }
   }, []);
 
-  // Al entrar a la pestaña y cada vez que llega un mensaje o cambia una cita
-  useFocusEffect(recargar);
-  useEffect(recargar, [version, recargar]);
+  useFocusEffect(useCallback(() => void recargar(), [recargar]));
+  useEffect(() => escucharVinculaciones(() => void recargar()), [recargar]);
 
-  const secciones = [
-    { title: "Solicitudes por coordinar", data: citas.filter((x) => x.estado === "pendiente") },
-    { title: "Citas confirmadas", data: citas.filter((x) => x.estado === "confirmada") },
-    {
-      title: "Historial",
-      data: citas.filter((x) => x.estado === "rechazada" || x.estado === "cancelada"),
-    },
-  ].filter((seccion) => seccion.data.length > 0);
+  const secciones = useMemo(
+    () =>
+      [
+        { title: "Pacientes activos", data: pacientes.filter((p) => p.estado === "activa") },
+        { title: "Historial", data: pacientes.filter((p) => p.estado === "finalizada") },
+      ].filter((seccion) => seccion.data.length > 0),
+    [pacientes]
+  );
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: c.background }]}>
-      <Text style={[s.title, { color: c.text }]}>Pacientes</Text>
+      <View style={s.patientsHeader}>
+        <Text style={[s.title, { color: c.text }]}>Mis pacientes</Text>
+        <Pressable
+          style={({ pressed }) => [s.inviteButton, { backgroundColor: c.accent }, pressed && { opacity: 0.8 }]}
+          onPress={() => router.push("/professional/invite-patient")}
+          accessibilityRole="button"
+          accessibilityLabel="Invitar paciente"
+        >
+          <Ionicons name="person-add-outline" size={18} color={c.accentText} />
+          <Text style={[s.inviteButtonText, { color: c.accentText }]}>Invitar</Text>
+        </Pressable>
+      </View>
 
-      {secciones.length === 0 ? (
+      {cargando ? (
+        <View style={s.emptyState}><ActivityIndicator size="large" color={c.accent} /></View>
+      ) : secciones.length === 0 ? (
         <View style={s.emptyState}>
           <Ionicons name="people-outline" size={48} color={c.textSecondary} />
-          <Text style={[s.emptyText, { color: c.textSecondary }]}>
-            Aún no tienes solicitudes de cita.
-          </Text>
+          <Text style={[s.emptyTitle, { color: c.text }]}>Aún no tienes pacientes</Text>
+          <Text style={[s.emptyText, { color: c.textSecondary }]}>Genera una invitación para vincular al primer paciente.</Text>
         </View>
       ) : (
         <SectionList
           sections={secciones}
-          keyExtractor={(cita) => cita.id}
-          renderItem={({ item }) => <CitaCard cita={item} />}
+          keyExtractor={(paciente) => paciente.id}
+          renderItem={({ item }) => <PatientCard paciente={item} />}
           renderSectionHeader={({ section }) => (
             <Text style={[s.sectionLabel, { color: c.text }]}>{section.title}</Text>
           )}
           contentContainerStyle={s.listContent}
           stickySectionHeadersEnabled={false}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </SafeAreaView>

@@ -47,6 +47,9 @@ function RootNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      {/* La invitación puede abrirse desde un enlace antes o después de iniciar sesión. */}
+      <Stack.Screen name="invitation" />
+
       <Stack.Protected guard={!session} redirectTo={destino}>
         <Stack.Screen name="(auth)" />
       </Stack.Protected>
@@ -70,10 +73,7 @@ function RootNavigator() {
         {/* Fuera de (tabs): desde Expo Router 58, abrir una pestaña oculta (href: null)
             redirige a la pestaña inicial */}
         <Stack.Screen name="journal" />
-        <Stack.Screen name="professional-details" />
         <Stack.Screen name="article" />
-        <Stack.Screen name="filters" options={{ presentation: "modal" }} />
-        <Stack.Screen name="solicitar-cita" />
       </Stack.Protected>
 
       {/* Compartidas por el usuario común y el profesional (que además edita su descripción).

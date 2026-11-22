@@ -39,7 +39,9 @@
         {
           "photosPermission": "La aplicación accede a tus fotos para agregar imágenes a los artículos."
         }
-      ]
+      ],
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -41,9 +41,10 @@ const GAP = 2;
 
 type Props = {
   emociones: EmotionId[];
+  emptyText?: string;
 };
 
-export function EmotionDonut({ emociones }: Props) {
+export function EmotionDonut({ emociones, emptyText }: Props) {
   const c = useTheme();
   const scheme = useColorScheme() === "dark" ? "dark" : "light";
   const colores = EMOTION_COLORS[scheme];
@@ -55,7 +56,7 @@ export function EmotionDonut({ emociones }: Props) {
     return (
       <View style={[s.card, { backgroundColor: c.backgroundElement }]}>
         <Text style={[s.empty, { color: c.textSecondary }]}>
-          Aún no hay registros este mes. Cuando escribas en tu diario, aquí verás tus emociones.
+          {emptyText ?? "Aún no hay registros emocionales disponibles."}
         </Text>
       </View>
     );

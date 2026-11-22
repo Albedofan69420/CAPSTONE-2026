@@ -5,22 +5,19 @@ import { escucharMisCitas, obtenerResumenCitas } from "@/lib/citas";
 import { useAuth } from "@/providers/AuthProvider";
 
 type CitasData = {
-  /** Cantidad de citas del usuario (de cualquier estado): con 0 se oculta la pestaña Citas */
+  /** Cantidad de citas visibles: con 0 se oculta la pestaña Citas del paciente. */
   totalCitas: number;
-  /** Número del círculo rojo del menú inferior */
-  noLeidos: number;
   /** Aumenta con cada cambio en las citas: las listas lo usan para recargarse */
   version: number;
 };
 
-const CitasContext = createContext<CitasData>({ totalCitas: 0, noLeidos: 0, version: 0 });
+const CitasContext = createContext<CitasData>({ totalCitas: 0, version: 0 });
 
 // Resumen de las citas en vivo, compartido por el menú inferior y las listas de citas
 export default function CitasProvider({ children }: { children: React.ReactNode }) {
   const { session } = useAuth();
   const userId = session?.user.id;
   const [totalCitas, setTotalCitas] = useState(0);
-  const [noLeidos, setNoLeidos] = useState(0);
   const [version, setVersion] = useState(0);
 
   useEffect(() => {
@@ -30,7 +27,6 @@ export default function CitasProvider({ children }: { children: React.ReactNode 
       obtenerResumenCitas()
         .then((resumen) => {
           setTotalCitas(resumen.total_citas);
-          setNoLeidos(resumen.no_leidos);
         })
         .catch((e) => console.log("Error al cargar el resumen de citas:", e.message))
         .finally(() => setVersion((v) => v + 1));
@@ -51,7 +47,7 @@ export default function CitasProvider({ children }: { children: React.ReactNode 
   }, [userId]);
 
   // Sin sesión no se muestran datos de la cuenta anterior
-  const value = userId ? { totalCitas, noLeidos, version } : { totalCitas: 0, noLeidos: 0, version };
+  const value = userId ? { totalCitas, version } : { totalCitas: 0, version };
 
   return <CitasContext.Provider value={value}>{children}</CitasContext.Provider>;
 }

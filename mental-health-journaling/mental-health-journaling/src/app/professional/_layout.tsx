@@ -14,6 +14,12 @@ export default function ProfessionalLayout() {
           Al cerrar sesión va directo al login, sin pasar por certificados */}
       <Stack.Protected guard={hasPin === true} redirectTo={session ? undefined : "/signin"}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="invite-patient" />
+        <Stack.Screen name="patient-details" />
+        <Stack.Screen name="patient-appointments" />
+        <Stack.Screen name="appointment-editor" />
+        <Stack.Screen name="patient-dashboard" />
+        <Stack.Screen name="patient-shared-journals" />
       </Stack.Protected>
 
       {/* Sin PIN es el paso de certificados del registro; con PIN se abre desde Perfil */}

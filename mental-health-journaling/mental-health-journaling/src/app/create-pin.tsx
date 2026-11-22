@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { router } from "expo-router";
 
 import { PinInput } from "@/components/pin-input";
 import { authStyles as s } from "@/constants/auth-styles";
 import { useTheme } from "@/hooks/use-theme";
 import { PIN_LENGTH, savePin } from "@/lib/pin";
+import { leerInvitacionPendiente } from "@/lib/vinculaciones";
 import { useAuth } from "@/providers/AuthProvider";
 
 export default function CrearPin() {
@@ -43,8 +45,10 @@ export default function CrearPin() {
 
     setSaving(true);
     await savePin(session.user.id, pin);
+    const invitacionPendiente = await leerInvitacionPendiente();
     //Con el PIN guardado, el layout lleva al usuario a las pestañas de (tabs)
     pinCreated();
+    if (invitacionPendiente) router.replace("/invitation");
   };
 
   return (

@@ -1,53 +1,74 @@
-import { useCallback, useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { ActivityIndicator, Alert, SectionList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 
 import { CitaCard } from "@/components/cita-card";
-import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
-import { agruparPorPersona, listarMisCitas, type Cita } from "@/lib/citas";
+import { useTheme } from "@/hooks/use-theme";
+import { listarMisCitas, type Cita } from "@/lib/citas";
 import { useCitas } from "@/providers/CitasProvider";
 
-// Mismo diseño que la pestaña Pacientes del profesional
 const s = appStyles.professionalTabs;
 
-// Pestaña Citas del usuario común: solo aparece cuando tiene al menos una solicitud ((tabs)/_layout.tsx)
 export default function Citas() {
   const c = useTheme();
   const { version } = useCitas();
   const [citas, setCitas] = useState<Cita[]>([]);
+  const [cargando, setCargando] = useState(true);
 
-  const recargar = useCallback(() => {
-    listarMisCitas()
-      // Un solo chat por profesional, aunque tengan varias citas
-      .then((lista) => setCitas(agruparPorPersona(lista)))
-      .catch((e) => console.log("Error al cargar las citas:", e.message));
+  const recargar = useCallback(async () => {
+    try {
+      setCitas(await listarMisCitas());
+    } catch (error) {
+      Alert.alert("No se pudieron cargar las citas", (error as Error).message);
+    } finally {
+      setCargando(false);
+    }
   }, []);
 
-  // Al entrar a la pestaña y cada vez que llega un mensaje o cambia una cita
-  useFocusEffect(recargar);
-  useEffect(recargar, [version, recargar]);
+  useFocusEffect(
+    useCallback(() => {
+      void version;
+      void recargar();
+    }, [version, recargar])
+  );
+
+  const secciones = useMemo(() => {
+    const ahora = new Date().getTime();
+    const proximas = citas.filter(
+      (cita) => cita.estado === "confirmada" && !!cita.fecha_confirmada && new Date(cita.fecha_confirmada).getTime() >= ahora
+    );
+    const historial = citas.filter((cita) => !proximas.includes(cita));
+    return [
+      { title: "Próximas citas", data: proximas },
+      { title: "Historial", data: historial },
+    ].filter((seccion) => seccion.data.length > 0);
+  }, [citas]);
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: c.background }]}>
-      <Text style={[s.title, { color: c.text }]}>Citas</Text>
-
-      <FlatList
-        data={citas}
-        keyExtractor={(cita) => cita.id}
-        renderItem={({ item }) => <CitaCard cita={item} />}
-        contentContainerStyle={s.listContent}
-        ListEmptyComponent={
-          <View style={s.emptyState}>
-            <Ionicons name="chatbubbles-outline" size={48} color={c.textSecondary} />
-            <Text style={[s.emptyText, { color: c.textSecondary }]}>
-              Aún no tienes citas. Puedes solicitar una desde el perfil de un profesional.
-            </Text>
-          </View>
-        }
-      />
+      <Text style={[s.title, { color: c.text }]}>Mis citas</Text>
+      {cargando ? (
+        <View style={s.emptyState}><ActivityIndicator size="large" color={c.accent} /></View>
+      ) : secciones.length === 0 ? (
+        <View style={s.emptyState}>
+          <Ionicons name="calendar-clear-outline" size={48} color={c.textSecondary} />
+          <Text style={[s.emptyTitle, { color: c.text }]}>Aún no tienes citas</Text>
+          <Text style={[s.emptyText, { color: c.textSecondary }]}>Tu psicólogo podrá agendar una hora desde tu ficha de paciente.</Text>
+        </View>
+      ) : (
+        <SectionList
+          sections={secciones}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <CitaCard cita={item} />}
+          renderSectionHeader={({ section }) => <Text style={[s.sectionLabel, { color: c.text }]}>{section.title}</Text>}
+          contentContainerStyle={s.listContent}
+          stickySectionHeadersEnabled={false}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </SafeAreaView>
   );
 }

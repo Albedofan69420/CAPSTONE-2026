@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TextInputInstance, View,} from "react-native";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/hooks/use-theme";
 import { authStyles as s } from "@/constants/auth-styles";
+import { leerInvitacionPendiente } from "@/lib/vinculaciones";
 
 export default function SignIn() {
   const c = useTheme();
@@ -25,7 +26,7 @@ export default function SignIn() {
     setLoading(true);
     setError(null);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
@@ -37,6 +38,11 @@ export default function SignIn() {
           : signInError.message
       );
       setLoading(false);
+      return;
+    }
+
+    if (signInData.session && (await leerInvitacionPendiente())) {
+      router.replace("/invitation");
     }
   };
 

@@ -35,6 +35,9 @@ export const appStyles = {
       fontSize: 14,
       marginTop: 2,
     },
+    nextAppointment: {
+      gap: 10,
+    },
     // La lista llega hasta los bordes de la pantalla, compensando el padding de scrollContent
     articleList: {
       marginHorizontal: -16,
@@ -157,6 +160,33 @@ export const appStyles = {
       marginTop: 10,
       marginBottom: 10,
     },
+    shareCard: {
+      padding: 14,
+      borderRadius: 14,
+      gap: 10,
+      marginBottom: 4,
+    },
+    shareHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
+    shareInfo: {
+      flex: 1,
+      gap: 5,
+    },
+    shareTitle: {
+      fontSize: 14,
+      fontWeight: "700",
+    },
+    shareDescription: {
+      fontSize: 12,
+      lineHeight: 17,
+    },
+    shareStatus: {
+      fontSize: 12,
+      fontWeight: "700",
+    },
     fieldSection: {
       gap: 10,
       marginTop: 15,
@@ -277,6 +307,160 @@ export const appStyles = {
       fontSize: 15,
       textAlign: "center",
       marginTop: 32,
+    },
+  }),
+
+  // src/app/(tabs)/explore.tsx: profesional vinculado del paciente
+  psicologoVinculado: StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingHorizontal: 16,
+      paddingTop: 16,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: "700",
+      marginBottom: 16,
+    },
+    center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 12,
+      paddingHorizontal: 20,
+      paddingBottom: 90,
+    },
+    emptyIcon: {
+      width: 76,
+      height: 76,
+      borderRadius: 38,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 4,
+    },
+    emptyTitle: {
+      fontSize: 19,
+      fontWeight: "700",
+      textAlign: "center",
+    },
+    emptyText: {
+      fontSize: 14,
+      lineHeight: 21,
+      textAlign: "center",
+      maxWidth: 310,
+    },
+    primaryButton: {
+      minHeight: 48,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      paddingHorizontal: 22,
+      borderRadius: 22,
+      marginTop: 8,
+    },
+    primaryButtonText: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    content: {
+      paddingBottom: 120,
+      gap: 18,
+    },
+    profileCard: {
+      alignItems: "center",
+      padding: 22,
+      borderRadius: 20,
+      gap: 6,
+    },
+    avatar: {
+      width: 104,
+      height: 104,
+      borderRadius: 52,
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+      marginBottom: 5,
+    },
+    avatarImage: {
+      width: "100%",
+      height: "100%",
+    },
+    name: {
+      fontSize: 21,
+      fontWeight: "700",
+      textAlign: "center",
+    },
+    specialty: {
+      fontSize: 14,
+      textAlign: "center",
+    },
+    activeBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      paddingHorizontal: 11,
+      paddingVertical: 6,
+      borderRadius: 14,
+      marginTop: 7,
+    },
+    activeDot: {
+      width: 7,
+      height: 7,
+      borderRadius: 4,
+    },
+    activeText: {
+      fontSize: 12,
+      fontWeight: "700",
+    },
+    infoCard: {
+      padding: 16,
+      borderRadius: 18,
+      gap: 17,
+    },
+    infoRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
+    infoContent: {
+      flex: 1,
+      gap: 3,
+    },
+    infoLabel: {
+      fontSize: 12,
+    },
+    infoValue: {
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    section: {
+      gap: 9,
+    },
+    sectionTitle: {
+      fontSize: 17,
+      fontWeight: "700",
+    },
+    descriptionCard: {
+      padding: 16,
+      borderRadius: 18,
+    },
+    description: {
+      fontSize: 14,
+      lineHeight: 21,
+    },
+    notice: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 9,
+      padding: 13,
+      borderRadius: 14,
+      borderWidth: 1,
+    },
+    noticeText: {
+      flex: 1,
+      fontSize: 12,
+      lineHeight: 18,
     },
   }),
 
@@ -891,6 +1075,12 @@ export const appStyles = {
     emptyText: {
       fontSize: 15,
       textAlign: "center",
+      lineHeight: 21,
+      maxWidth: 280,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      fontWeight: "700",
     },
     // Filtros de verification.tsx
     filters: {
@@ -1297,6 +1487,25 @@ export const appStyles = {
     subtitle: {
       fontSize: 15,
     },
+    patientsHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 12,
+    },
+    inviteButton: {
+      height: 40,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      paddingHorizontal: 14,
+      borderRadius: 20,
+    },
+    inviteButtonText: {
+      fontSize: 14,
+      fontWeight: "700",
+    },
     // Recordatorio de certificados pendientes en index.tsx
     reminder: {
       flexDirection: "row",
@@ -1328,6 +1537,12 @@ export const appStyles = {
     emptyText: {
       fontSize: 15,
       textAlign: "center",
+      lineHeight: 21,
+      maxWidth: 280,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      fontWeight: "700",
     },
     // Lista de solicitudes y citas en patients.tsx
     listContent: {
@@ -1371,6 +1586,978 @@ export const appStyles = {
     homeLinkText: {
       fontSize: 15,
       fontWeight: "700",
+    },
+  }),
+
+  // src/components/patient-card.tsx
+  patientCard: StyleSheet.create({
+    card: {
+      minHeight: 82,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      padding: 14,
+      borderRadius: 18,
+      marginBottom: 10,
+    },
+    inactive: {
+      opacity: 0.72,
+    },
+    avatar: {
+      width: 50,
+      height: 50,
+      borderRadius: 25,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    info: {
+      flex: 1,
+      gap: 4,
+    },
+    name: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    email: {
+      fontSize: 13,
+    },
+    side: {
+      alignItems: "flex-end",
+      gap: 8,
+    },
+    badge: {
+      paddingHorizontal: 9,
+      paddingVertical: 5,
+      borderRadius: 12,
+    },
+    badgeText: {
+      fontSize: 11,
+      fontWeight: "700",
+    },
+  }),
+
+  // src/app/professional/patient-details.tsx
+  patientDetails: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      height: 54,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+    },
+    headerButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 12,
+      padding: 24,
+    },
+    notFound: {
+      fontSize: 15,
+      textAlign: "center",
+    },
+    content: {
+      paddingHorizontal: 20,
+      paddingTop: 18,
+      paddingBottom: 44,
+      gap: 22,
+    },
+    profile: {
+      alignItems: "center",
+      gap: 7,
+    },
+    avatar: {
+      width: 94,
+      height: 94,
+      borderRadius: 47,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 4,
+    },
+    name: {
+      fontSize: 23,
+      fontWeight: "700",
+      textAlign: "center",
+    },
+    email: {
+      fontSize: 14,
+      textAlign: "center",
+    },
+    status: {
+      marginTop: 5,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 14,
+    },
+    statusText: {
+      fontSize: 12,
+      fontWeight: "700",
+    },
+    infoCard: {
+      borderRadius: 16,
+      padding: 16,
+      gap: 5,
+    },
+    infoLabel: {
+      fontSize: 12,
+      fontWeight: "600",
+    },
+    infoValue: {
+      fontSize: 15,
+      fontWeight: "600",
+    },
+    separator: {
+      height: StyleSheet.hairlineWidth,
+      marginVertical: 10,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      marginBottom: -10,
+    },
+    features: {
+      gap: 10,
+    },
+    featureCard: {
+      minHeight: 76,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 11,
+      padding: 13,
+      borderRadius: 16,
+    },
+    featureIcon: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    featureInfo: {
+      flex: 1,
+      gap: 3,
+    },
+    featureTitle: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    featureDetail: {
+      fontSize: 12,
+      lineHeight: 17,
+    },
+    soon: {
+      maxWidth: 58,
+      fontSize: 10,
+      lineHeight: 13,
+      textAlign: "right",
+    },
+    endButton: {
+      height: 50,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 20,
+      borderWidth: 1.5,
+      marginTop: 4,
+    },
+    endButtonText: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    disabled: {
+      opacity: 0.55,
+    },
+  }),
+
+  // src/app/professional/patient-dashboard.tsx
+  patientDashboard: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      height: 58,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+    },
+    headerButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerInfo: {
+      flex: 1,
+      alignItems: "center",
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    headerSubtitle: {
+      fontSize: 12,
+      maxWidth: 230,
+    },
+    center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    content: {
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 42,
+      gap: 24,
+    },
+    stats: {
+      flexDirection: "row",
+      gap: 12,
+    },
+    statCard: {
+      flex: 1,
+      minHeight: 92,
+      borderRadius: 16,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 5,
+      padding: 12,
+    },
+    statValue: {
+      fontSize: 27,
+      fontWeight: "700",
+    },
+    statEmoji: {
+      fontSize: 29,
+    },
+    statLabel: {
+      fontSize: 12,
+      textAlign: "center",
+    },
+    section: {
+      gap: 11,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    emptyText: {
+      fontSize: 14,
+      textAlign: "center",
+      paddingVertical: 24,
+    },
+    timeline: {
+      gap: 9,
+    },
+    timelineRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      padding: 13,
+      borderRadius: 14,
+    },
+    timelineEmoji: {
+      fontSize: 28,
+    },
+    timelineInfo: {
+      flex: 1,
+      gap: 2,
+    },
+    timelineEmotion: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    timelineDate: {
+      fontSize: 12,
+    },
+  }),
+
+  // src/app/professional/patient-shared-journals.tsx
+  sharedJournals: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      height: 58,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+    },
+    headerButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerInfo: {
+      flex: 1,
+      alignItems: "center",
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    headerSubtitle: {
+      fontSize: 12,
+      maxWidth: 230,
+    },
+    center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 11,
+      paddingHorizontal: 30,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      textAlign: "center",
+    },
+    emptyText: {
+      fontSize: 14,
+      lineHeight: 20,
+      textAlign: "center",
+    },
+    content: {
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 42,
+      gap: 14,
+    },
+    card: {
+      padding: 16,
+      borderRadius: 18,
+      gap: 15,
+    },
+    cardHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 11,
+    },
+    emoji: {
+      fontSize: 31,
+    },
+    cardHeaderInfo: {
+      flex: 1,
+      gap: 3,
+    },
+    date: {
+      fontSize: 15,
+      fontWeight: "700",
+      textTransform: "capitalize",
+    },
+    emotion: {
+      fontSize: 12,
+    },
+    fields: {
+      gap: 14,
+    },
+    field: {
+      gap: 4,
+    },
+    fieldLabel: {
+      fontSize: 12,
+      fontWeight: "600",
+    },
+    fieldText: {
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    emptyRecord: {
+      fontSize: 13,
+      lineHeight: 19,
+    },
+  }),
+
+  // src/app/professional/patient-appointments.tsx
+  patientAppointments: StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingHorizontal: 16,
+    },
+    header: {
+      height: 58,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginHorizontal: -8,
+    },
+    headerButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerInfo: {
+      flex: 1,
+      alignItems: "center",
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    headerSubtitle: {
+      fontSize: 12,
+      maxWidth: 230,
+    },
+    addButton: {
+      height: 48,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      borderRadius: 20,
+      marginTop: 10,
+      marginBottom: 4,
+    },
+    addButtonText: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 11,
+      paddingBottom: 50,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    emptyText: {
+      fontSize: 14,
+      textAlign: "center",
+    },
+    list: {
+      paddingTop: 12,
+      paddingBottom: 36,
+      gap: 10,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: "700",
+      marginTop: 10,
+      marginBottom: 2,
+    },
+  }),
+
+  // src/app/professional/appointment-editor.tsx
+  appointmentEditor: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      height: 58,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+    },
+    headerButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    content: {
+      paddingHorizontal: 20,
+      paddingTop: 20,
+      paddingBottom: 40,
+      gap: 25,
+    },
+    patientName: {
+      fontSize: 17,
+      fontWeight: "700",
+      textAlign: "center",
+    },
+    dateRow: {
+      flexDirection: "row",
+      gap: 12,
+    },
+    dateField: {
+      flex: 1.3,
+      gap: 8,
+    },
+    timeField: {
+      flex: 0.8,
+      gap: 8,
+    },
+    field: {
+      gap: 8,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    input: {
+      height: 48,
+      borderWidth: 1,
+      borderRadius: 12,
+      paddingHorizontal: 13,
+      fontSize: 16,
+    },
+    notice: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 10,
+      padding: 14,
+      borderRadius: 14,
+    },
+    noticeText: {
+      flex: 1,
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    saveButton: {
+      height: 50,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 20,
+    },
+    saveButtonText: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    disabled: {
+      opacity: 0.55,
+    },
+  }),
+
+  // src/app/cita.tsx
+  appointmentDetails: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      height: 58,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+    },
+    headerButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 12,
+      padding: 24,
+    },
+    emptyText: {
+      fontSize: 15,
+      textAlign: "center",
+    },
+    content: {
+      paddingHorizontal: 20,
+      paddingTop: 18,
+      paddingBottom: 44,
+      gap: 22,
+    },
+    hero: {
+      alignItems: "center",
+      gap: 8,
+    },
+    heroIcon: {
+      width: 78,
+      height: 78,
+      borderRadius: 39,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 3,
+    },
+    personName: {
+      fontSize: 22,
+      fontWeight: "700",
+      textAlign: "center",
+    },
+    status: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 14,
+    },
+    statusText: {
+      fontSize: 12,
+      fontWeight: "700",
+    },
+    card: {
+      padding: 17,
+      borderRadius: 18,
+      gap: 19,
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 13,
+    },
+    rowInfo: {
+      flex: 1,
+      gap: 3,
+    },
+    label: {
+      fontSize: 12,
+    },
+    value: {
+      fontSize: 15,
+      fontWeight: "600",
+    },
+    notice: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 9,
+      padding: 14,
+      borderRadius: 14,
+    },
+    noticeText: {
+      flex: 1,
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    actions: {
+      gap: 12,
+    },
+    primaryButton: {
+      height: 50,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      borderRadius: 20,
+    },
+    primaryButtonText: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    cancelButton: {
+      height: 50,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 20,
+      borderWidth: 1.5,
+    },
+    cancelButtonText: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+  }),
+
+  // src/app/professional/invite-patient.tsx
+  invitarPaciente: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+      paddingTop: 8,
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    scrollContent: {
+      paddingHorizontal: 20,
+      paddingTop: 20,
+      paddingBottom: 40,
+      gap: 28,
+    },
+    intro: {
+      alignItems: "center",
+      gap: 10,
+    },
+    heroIcon: {
+      width: 70,
+      height: 70,
+      borderRadius: 35,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 4,
+    },
+    title: {
+      fontSize: 22,
+      fontWeight: "700",
+      textAlign: "center",
+    },
+    subtitle: {
+      fontSize: 15,
+      lineHeight: 22,
+      textAlign: "center",
+    },
+    infoCard: {
+      padding: 16,
+      borderRadius: 16,
+      gap: 14,
+    },
+    infoRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+    },
+    infoText: {
+      flex: 1,
+      fontSize: 14,
+    },
+    primaryButton: {
+      height: 50,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      borderRadius: 20,
+    },
+    primaryButtonText: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    result: {
+      gap: 20,
+    },
+    successCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      padding: 16,
+      borderRadius: 16,
+      borderWidth: 1,
+    },
+    successInfo: {
+      flex: 1,
+      gap: 3,
+    },
+    successTitle: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    successText: {
+      fontSize: 13,
+    },
+    codeSection: {
+      gap: 8,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    codeCard: {
+      minHeight: 76,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 14,
+      borderWidth: 1,
+      padding: 12,
+    },
+    code: {
+      fontSize: 28,
+      fontWeight: "800",
+      letterSpacing: 4,
+    },
+    hint: {
+      fontSize: 12,
+      lineHeight: 17,
+    },
+    secondaryButton: {
+      height: 48,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 20,
+      borderWidth: 1,
+    },
+    secondaryButtonText: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    disabled: {
+      opacity: 0.5,
+    },
+  }),
+
+  // src/app/invitation.tsx
+  aceptarInvitacion: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+      paddingTop: 8,
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    scrollContent: {
+      paddingHorizontal: 20,
+      paddingTop: 28,
+      paddingBottom: 40,
+      gap: 24,
+    },
+    centerContent: {
+      flex: 1,
+      paddingHorizontal: 24,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 16,
+    },
+    intro: {
+      alignItems: "center",
+      gap: 10,
+      marginBottom: 8,
+    },
+    heroIcon: {
+      width: 70,
+      height: 70,
+      borderRadius: 35,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 4,
+    },
+    title: {
+      fontSize: 22,
+      fontWeight: "700",
+      textAlign: "center",
+    },
+    subtitle: {
+      fontSize: 15,
+      lineHeight: 22,
+      textAlign: "center",
+    },
+    field: {
+      gap: 8,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    codeInput: {
+      height: 58,
+      borderWidth: 1.5,
+      borderRadius: 14,
+      paddingHorizontal: 16,
+      fontSize: 22,
+      fontWeight: "700",
+      letterSpacing: 4,
+      textAlign: "center",
+    },
+    error: {
+      fontSize: 13,
+      lineHeight: 18,
+      textAlign: "center",
+    },
+    primaryButton: {
+      width: "100%",
+      height: 50,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 20,
+    },
+    primaryButtonText: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    secondaryButton: {
+      width: "100%",
+      height: 48,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 20,
+      borderWidth: 1,
+    },
+    secondaryButtonText: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    disabled: {
+      opacity: 0.5,
+    },
+    confirmation: {
+      gap: 20,
+    },
+    professionalCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 14,
+      padding: 18,
+      borderRadius: 16,
+    },
+    avatar: {
+      width: 58,
+      height: 58,
+      borderRadius: 29,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    professionalInfo: {
+      flex: 1,
+      gap: 3,
+    },
+    professionalLabel: {
+      fontSize: 12,
+    },
+    professionalName: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    expiration: {
+      fontSize: 12,
+    },
+    notice: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 10,
+      padding: 14,
+      borderRadius: 14,
+    },
+    noticeText: {
+      flex: 1,
+      fontSize: 13,
+      lineHeight: 18,
     },
   }),
 

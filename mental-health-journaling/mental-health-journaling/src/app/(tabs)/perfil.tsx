@@ -35,6 +35,13 @@ const AJUSTES: Ajuste[] = [
     icono: "notifications-outline",
   },
   {
+    id: "vinculacion",
+    titulo: "Vinculación terapéutica",
+    descripcion: "Ingresa el código de invitación de tu psicólogo",
+    icono: "people-outline",
+    ruta: "/invitation",
+  },
+  {
     id: "privacidad",
     titulo: "Privacidad y seguridad",
     descripcion: "Contraseña y bloqueo de la app",

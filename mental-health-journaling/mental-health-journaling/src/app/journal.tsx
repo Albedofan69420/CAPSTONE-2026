@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Pressable, ScrollView, Alert } from "react-native";
+import { View, Text, TextInput, Pressable, ScrollView, Alert, Switch } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/use-theme";
@@ -23,6 +23,7 @@ export default function JournalScreen() {
   const [achievedGoal, setAchievedGoal] = useState("");
   const [improvementAreas, setImprovementAreas] = useState("");
   const [actionPlan, setActionPlan] = useState("");
+  const [shareWithProfessional, setShareWithProfessional] = useState(false);
 
   // La pantalla se crea de nuevo cada vez que se abre, así que el formulario parte vacío.
   // Si ya hay un registro para la fecha, se cargan sus datos para editarlos.
@@ -39,6 +40,7 @@ export default function JournalScreen() {
         setAchievedGoal(registro.objetivo_cumplido);
         setImprovementAreas(registro.areas_mejora);
         setActionPlan(registro.plan_accion);
+        setShareWithProfessional(registro.compartir_con_profesional);
       })
       .catch((e) => console.log("Error al cargar el registro:", e.message));
   }, [session, fecha]);
@@ -86,6 +88,7 @@ export default function JournalScreen() {
         objetivo_cumplido: achievedGoal.trim(),
         areas_mejora: improvementAreas.trim(),
         plan_accion: actionPlan.trim(),
+        compartir_con_profesional: shareWithProfessional,
       });
     } catch (e) {
       Alert.alert("No se pudo guardar", (e as Error).message);
@@ -124,6 +127,28 @@ export default function JournalScreen() {
 
         <View style={s.emotionSection}>
           <EmotionSelector value={emotion} onChange={setEmotion} />
+        </View>
+
+        <View style={[s.shareCard, { backgroundColor: c.backgroundElement }]}>
+          <View style={s.shareHeader}>
+            <View style={s.shareInfo}>
+              <Text style={[s.shareTitle, { color: c.text }]}>Compartir este registro con mi psicólogo</Text>
+              <Text style={[s.shareDescription, { color: c.textSecondary }]}>
+                Tu emoción se comparte siempre para el dashboard. El contenido escrito solo será visible si activas esta opción.
+              </Text>
+            </View>
+            <Switch
+              value={shareWithProfessional}
+              onValueChange={setShareWithProfessional}
+              trackColor={{ false: c.border, true: c.accent }}
+              thumbColor={c.accentText}
+              ios_backgroundColor={c.border}
+              accessibilityLabel="Compartir este registro con mi psicólogo"
+            />
+          </View>
+          <Text style={[s.shareStatus, { color: shareWithProfessional ? c.accent : c.textSecondary }]}>
+            {shareWithProfessional ? "Texto compartido" : "Texto privado"}
+          </Text>
         </View>
 
         <View style={s.fieldSection}>

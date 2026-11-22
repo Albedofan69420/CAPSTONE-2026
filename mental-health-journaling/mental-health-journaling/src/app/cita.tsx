@@ -1,583 +1,175 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { useCallback, useState } from "react";
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 
-import { useTheme } from "@/hooks/use-theme";
 import { appStyles } from "@/constants/app-styles";
+import { useTheme } from "@/hooks/use-theme";
 import {
-  ESTADO_CITA_LABEL,
-  MENSAJE_MAX,
-  MODALIDAD_LABEL,
-  RESPUESTAS_RAPIDAS,
-  aceptarHorario,
-  cancelarCita,
-  citaVigente,
-  enviarMensaje,
-  escucharConversacion,
+  cancelarCitaAgendada,
+  DURACION_CITA_MINUTOS,
   fechaHoraTexto,
-  formatearHoraEscrita,
-  listarMensajes,
-  listarMisCitas,
-  marcarCitaLeida,
-  mismaPareja,
+  MODALIDAD_LABEL,
   nombreOtro,
   obtenerCita,
-  proponerHorario,
-  rechazarCita,
-  textoAFechaHora,
-  tieneRiesgo,
   type Cita,
-  type Mensaje,
 } from "@/lib/citas";
-import { formatearFechaEscrita } from "@/lib/profesionales";
-import { useAuth } from "@/providers/AuthProvider";
+import { useCitas } from "@/providers/CitasProvider";
 
-const s = appStyles.chat;
+const s = appStyles.appointmentDetails;
 
-const hora = (fecha: string) =>
-  new Intl.DateTimeFormat("es-CL", { hour: "2-digit", minute: "2-digit" }).format(new Date(fecha));
+const estadoVisual = (cita: Cita) => {
+  if (cita.estado === "cancelada") return "Cancelada";
+  if (cita.fecha_confirmada && new Date(cita.fecha_confirmada) < new Date()) return "Realizada";
+  return "Próxima";
+};
 
-// Chat limitado a coordinar la reserva. Lo usan el usuario y el profesional: solo se puede escribir
-// mientras la solicitud está pendiente (lo exige la base de datos, ver supabase/migrations).
-// Hay un solo chat por usuario y profesional: muestra los mensajes de todas sus citas
-export default function ChatCita() {
+export default function DetalleCita() {
   const c = useTheme();
-  const { session } = useAuth();
-  // Cualquier cita de la pareja abre el mismo chat
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const [pareja, setPareja] = useState<Pick<Cita, "paciente_id" | "profesional_id"> | null>(null);
-  const [citasPareja, setCitasPareja] = useState<Cita[]>([]);
-  const [mensajes, setMensajes] = useState<Mensaje[]>([]);
-  // Ids de las citas de la pareja, para saber en vivo si un mensaje nuevo es de este chat
-  const idsPareja = useRef<Set<string>>(new Set());
-  // Sin id no hay nada que cargar: se muestra "No encontramos esta cita" en vez de cargar sin fin
-  const [cargando, setCargando] = useState(!!id);
-  const [texto, setTexto] = useState("");
-  const [enviando, setEnviando] = useState(false);
-  const [ocupado, setOcupado] = useState(false);
-  // Formulario para que el profesional proponga un horario
-  const [proponiendo, setProponiendo] = useState(false);
-  const [fechaTexto, setFechaTexto] = useState("");
-  const [horaTexto, setHoraTexto] = useState("");
-  // Formulario del motivo al rechazar (profesional) o cancelar (cualquiera de los dos)
-  const [cierre, setCierre] = useState<"rechazar" | "cancelar" | null>(null);
-  const [motivo, setMotivo] = useState("");
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { version } = useCitas();
+  const [cita, setCita] = useState<Cita | null>(null);
+  const [cargando, setCargando] = useState(true);
+  const [cancelando, setCancelando] = useState(false);
 
-  // La cita que manda en el panel y en la que se escribe (ver citaVigente)
-  const cita = useMemo(() => citaVigente(citasPareja), [citasPareja]);
-
-  const cargarCitasPareja = useCallback(async (p: Pick<Cita, "paciente_id" | "profesional_id">) => {
-    const delPar = (await listarMisCitas()).filter((x) => mismaPareja(x, p));
-    idsPareja.current = new Set(delPar.map((x) => x.id));
-    setCitasPareja(delPar);
-    return delPar;
-  }, []);
-
-  const recargarCita = useCallback(() => {
-    if (!pareja) return;
-    cargarCitasPareja(pareja).catch((e) => console.log("Error al cargar las citas:", e.message));
-  }, [pareja, cargarCitasPareja]);
-
-  // Con el chat abierto todo queda leído: al entrar y con cada mensaje que llega
-  const marcarLeida = (citaId: string) =>
-    marcarCitaLeida(citaId).catch((e) => console.log("Error al marcar la cita como leída:", e.message));
-
-  useEffect(() => {
-    if (!id) return;
-
-    obtenerCita(id)
-      .then(async (inicial) => {
-        if (!inicial) return;
-        const p = { paciente_id: inicial.paciente_id, profesional_id: inicial.profesional_id };
-        const delPar = await cargarCitasPareja(p);
-        setMensajes(await listarMensajes(delPar.map((x) => x.id)));
-        setPareja(p);
-        delPar.filter((x) => x.no_leidos > 0).forEach((x) => marcarLeida(x.id));
-      })
-      .catch((e) => Alert.alert("No se pudo cargar el chat", e.message))
-      .finally(() => setCargando(false));
-  }, [id, cargarCitasPareja]);
-
-  // Mensajes y cambios de estado en vivo (por ejemplo, cuando el otro propone o acepta un horario)
-  useEffect(() => {
-    if (!pareja) return;
-
-    const agregar = (nuevo: Mensaje) => {
-      setMensajes((lista) => (lista.some((m) => m.id === nuevo.id) ? lista : [...lista, nuevo]));
-      if (nuevo.autor_id !== session?.user.id) marcarLeida(nuevo.cita_id);
-    };
-
-    return escucharConversacion(
-      pareja,
-      (nuevo) => {
-        if (idsPareja.current.has(nuevo.cita_id)) {
-          agregar(nuevo);
-          return;
-        }
-        // Puede ser de una cita nueva de la misma pareja (por ejemplo, una segunda solicitud)
-        obtenerCita(nuevo.cita_id)
-          .then(async (otra) => {
-            if (!otra || !mismaPareja(otra, pareja)) return;
-            await cargarCitasPareja(pareja);
-            agregar(nuevo);
-          })
-          .catch((e) => console.log("Error al revisar el mensaje nuevo:", e.message));
-      },
-      recargarCita
-    );
-  }, [pareja, session?.user.id, cargarCitasPareja, recargarCita]);
-
-  // La lista va invertida para que empiece desde abajo, como en cualquier chat
-  const invertidos = useMemo(() => [...mensajes].reverse(), [mensajes]);
-
-  const abierta = cita?.estado === "pendiente";
-  const esProfesional = !!cita?.soy_profesional;
-  const horarioVigente =
-    !!cita?.fecha_propuesta && new Date(cita.fecha_propuesta) > new Date();
-
-  const enviar = async (contenido = texto) => {
-    if (!cita || !contenido.trim() || enviando) return;
-
-    setEnviando(true);
-    try {
-      // Se escribe en la cita vigente (la base de datos solo lo permite si está pendiente)
-      const nuevo = await enviarMensaje(cita.id, contenido);
-      setMensajes((lista) => (lista.some((m) => m.id === nuevo.id) ? lista : [...lista, nuevo]));
-      setTexto("");
-    } catch (e) {
-      Alert.alert("No se pudo enviar el mensaje", (e as Error).message);
-    } finally {
-      setEnviando(false);
-    }
-  };
-
-  // Ejecuta una acción sobre la cita y luego muestra el estado nuevo
-  const ejecutar = async (accion: () => Promise<void>, errorTitulo: string) => {
-    setOcupado(true);
-    try {
-      await accion();
-      recargarCita();
-    } catch (e) {
-      Alert.alert(errorTitulo, (e as Error).message);
-    } finally {
-      setOcupado(false);
-    }
-  };
-
-  const enviarPropuesta = () => {
-    const fecha = textoAFechaHora(fechaTexto, horaTexto);
-    if (!fecha) {
-      Alert.alert("Horario no válido", "Escribe una fecha (DD/MM/AAAA) y una hora (HH:MM) futuras.");
+  const cargar = useCallback(async () => {
+    if (!id) {
+      setCargando(false);
       return;
     }
-    ejecutar(async () => {
-      await proponerHorario(cita!.id, fecha);
-      setProponiendo(false);
-      setFechaTexto("");
-      setHoraTexto("");
-    }, "No se pudo proponer el horario");
-  };
+    try {
+      setCita(await obtenerCita(id));
+    } catch (error) {
+      Alert.alert("No se pudo cargar la cita", (error as Error).message);
+    } finally {
+      setCargando(false);
+    }
+  }, [id]);
 
-  const confirmarAceptar = () => {
+  useFocusEffect(
+    useCallback(() => {
+      void version;
+      void cargar();
+    }, [version, cargar])
+  );
+
+  const puedeAdministrar =
+    !!cita?.soy_profesional &&
+    cita.estado === "confirmada" &&
+    !!cita.fecha_confirmada &&
+    new Date(cita.fecha_confirmada) > new Date();
+
+  const confirmarCancelacion = () => {
+    if (!cita || cancelando) return;
     Alert.alert(
-      "Confirmar cita",
-      `¿Aceptas la cita del ${fechaHoraTexto(cita!.fecha_propuesta!)}?`,
+      "Cancelar cita",
+      "La cita pasará al historial del profesional y del paciente.",
       [
         { text: "Volver", style: "cancel" },
-        { text: "Aceptar", onPress: () => ejecutar(() => aceptarHorario(cita!.id), "No se pudo confirmar la cita") },
-      ]
-    );
-  };
-
-  // Rechazar y cancelar piden un motivo, que la otra persona ve en el chat
-  const confirmarRechazo = () => setCierre("rechazar");
-  const confirmarCancelacion = () => setCierre("cancelar");
-
-  const cerrarCita = () => {
-    if (!cierre) return;
-    if (!motivo.trim()) {
-      Alert.alert("Motivo requerido", "Explica brevemente por qué cierras esta cita.");
-      return;
-    }
-    ejecutar(async () => {
-      if (cierre === "rechazar") await rechazarCita(cita!.id, motivo);
-      else await cancelarCita(cita!.id, motivo);
-      setCierre(null);
-      setMotivo("");
-    }, cierre === "rechazar" ? "No se pudo rechazar la solicitud" : "No se pudo cancelar");
-  };
-
-  const panel = () => {
-    if (!cita) return null;
-
-    if (cierre) {
-      const titulo =
-        cierre === "rechazar"
-          ? "Rechazar solicitud"
-          : cita.estado === "confirmada"
-            ? "Cancelar cita"
-            : "Cancelar solicitud";
-
-      return (
-        <>
-          <Text style={[s.panelTitle, { color: c.text }]}>{titulo}</Text>
-          <Text style={[s.panelText, { color: c.textSecondary }]}>
-            Escribe el motivo. {esProfesional ? "El usuario" : "El profesional"} lo verá en el chat y
-            esta acción no se puede deshacer.
-          </Text>
-          <TextInput
-            style={[s.motivoInput, { color: c.text, borderColor: c.border }]}
-            value={motivo}
-            onChangeText={setMotivo}
-            placeholder={
-              cierre === "rechazar"
-                ? "Ej.: No tengo horarios disponibles este mes."
-                : "Ej.: Me surgió un imprevisto ese día."
+        {
+          text: "Cancelar cita",
+          style: "destructive",
+          onPress: async () => {
+            setCancelando(true);
+            try {
+              await cancelarCitaAgendada(cita.id);
+              await cargar();
+            } catch (error) {
+              Alert.alert("No se pudo cancelar", (error as Error).message);
+            } finally {
+              setCancelando(false);
             }
-            placeholderTextColor={c.textSecondary}
-            maxLength={MENSAJE_MAX}
-            multiline
-            autoFocus
-            accessibilityLabel="Motivo"
-          />
-          <View style={s.actions}>
-            <Pressable
-              style={[s.action, s.actionOutline, { borderColor: c.border }]}
-              onPress={() => {
-                setCierre(null);
-                setMotivo("");
-              }}
-              accessibilityRole="button"
-            >
-              <Text style={[s.actionText, { color: c.textSecondary }]}>Volver</Text>
-            </Pressable>
-            <Pressable
-              style={[s.action, { backgroundColor: c.error }, (ocupado || !motivo.trim()) && { opacity: 0.5 }]}
-              onPress={cerrarCita}
-              disabled={ocupado || !motivo.trim()}
-              accessibilityRole="button"
-            >
-              <Text style={[s.actionText, { color: c.background }]}>
-                {cierre === "rechazar" ? "Rechazar" : "Cancelar"}
-              </Text>
-            </Pressable>
-          </View>
-        </>
-      );
-    }
-
-    if (cita.estado === "confirmada" && cita.fecha_confirmada) {
-      return (
-        <>
-          <Text style={[s.panelTitle, { color: c.text }]}>Cita confirmada</Text>
-          <Text style={[s.panelText, { color: c.textSecondary }]}>
-            {fechaHoraTexto(cita.fecha_confirmada)} · {MODALIDAD_LABEL[cita.modalidad]}
-          </Text>
-          <View style={s.actions}>
-            <Pressable
-              style={[s.action, s.actionOutline, { borderColor: c.error }, ocupado && { opacity: 0.5 }]}
-              onPress={confirmarCancelacion}
-              disabled={ocupado}
-              accessibilityRole="button"
-            >
-              <Text style={[s.actionText, { color: c.error }]}>Cancelar cita</Text>
-            </Pressable>
-          </View>
-        </>
-      );
-    }
-
-    if (!abierta) {
-      return (
-        <>
-          <Text style={[s.panelTitle, { color: c.text }]}>{ESTADO_CITA_LABEL[cita.estado]}</Text>
-          <Text style={[s.panelText, { color: c.textSecondary }]}>
-            {esProfesional
-              ? "No hay solicitudes abiertas con este paciente."
-              : "No tienes solicitudes abiertas. Si pides una nueva cita, seguirá en este mismo chat."}
-          </Text>
-          {!esProfesional && (
-            <View style={s.actions}>
-              <Pressable
-                style={[s.action, { backgroundColor: c.accent }]}
-                onPress={() =>
-                  router.push({
-                    pathname: "/solicitar-cita",
-                    params: { profesionalId: cita.profesional_id, nombre: nombreOtro(cita), desdeChat: "1" },
-                  })
-                }
-                accessibilityRole="button"
-              >
-                <Text style={[s.actionText, { color: c.accentText }]}>Solicitar nueva cita</Text>
-              </Pressable>
-            </View>
-          )}
-        </>
-      );
-    }
-
-    if (esProfesional) {
-      return (
-        <>
-          <Text style={[s.panelTitle, { color: c.text }]}>
-            Solicitud {MODALIDAD_LABEL[cita.modalidad].toLowerCase()}
-          </Text>
-          <Text style={[s.panelText, { color: c.textSecondary }]}>
-            {horarioVigente
-              ? `Propusiste el ${fechaHoraTexto(cita.fecha_propuesta!)}. Falta que el usuario lo acepte.`
-              : "Coordina con el usuario y propón un horario para la cita."}
-          </Text>
-
-          {proponiendo ? (
-            <>
-              <View style={s.proposeRow}>
-                <TextInput
-                  style={[s.proposeInput, { color: c.text, borderColor: c.border }]}
-                  value={fechaTexto}
-                  onChangeText={(t) => setFechaTexto(formatearFechaEscrita(t))}
-                  placeholder="DD/MM/AAAA"
-                  placeholderTextColor={c.textSecondary}
-                  keyboardType="number-pad"
-                  maxLength={10}
-                  accessibilityLabel="Fecha de la cita"
-                />
-                <TextInput
-                  style={[s.proposeInput, { color: c.text, borderColor: c.border }]}
-                  value={horaTexto}
-                  onChangeText={(t) => setHoraTexto(formatearHoraEscrita(t))}
-                  placeholder="HH:MM"
-                  placeholderTextColor={c.textSecondary}
-                  keyboardType="number-pad"
-                  maxLength={5}
-                  accessibilityLabel="Hora de la cita"
-                />
-              </View>
-              <View style={s.actions}>
-                <Pressable
-                  style={[s.action, s.actionOutline, { borderColor: c.border }]}
-                  onPress={() => setProponiendo(false)}
-                  accessibilityRole="button"
-                >
-                  <Text style={[s.actionText, { color: c.textSecondary }]}>Volver</Text>
-                </Pressable>
-                <Pressable
-                  style={[s.action, { backgroundColor: c.accent }, ocupado && { opacity: 0.5 }]}
-                  onPress={enviarPropuesta}
-                  disabled={ocupado}
-                  accessibilityRole="button"
-                >
-                  <Text style={[s.actionText, { color: c.accentText }]}>Enviar horario</Text>
-                </Pressable>
-              </View>
-            </>
-          ) : (
-            <View style={s.actions}>
-              <Pressable
-                style={[s.action, s.actionOutline, { borderColor: c.error }, ocupado && { opacity: 0.5 }]}
-                onPress={confirmarRechazo}
-                disabled={ocupado}
-                accessibilityRole="button"
-              >
-                <Text style={[s.actionText, { color: c.error }]}>Rechazar</Text>
-              </Pressable>
-              <Pressable
-                style={[s.action, { backgroundColor: c.accent }]}
-                onPress={() => setProponiendo(true)}
-                accessibilityRole="button"
-              >
-                <Text style={[s.actionText, { color: c.accentText }]}>
-                  {horarioVigente ? "Proponer otro horario" : "Proponer horario"}
-                </Text>
-              </Pressable>
-            </View>
-          )}
-        </>
-      );
-    }
-
-    return (
-      <>
-        <Text style={[s.panelTitle, { color: c.text }]}>
-          {horarioVigente ? "Horario propuesto" : "Esperando un horario"}
-        </Text>
-        <Text style={[s.panelText, { color: c.textSecondary }]}>
-          {horarioVigente
-            ? `${fechaHoraTexto(cita.fecha_propuesta!)} · ${MODALIDAD_LABEL[cita.modalidad]}`
-            : "Cuéntale al profesional qué días te acomodan y te propondrá un horario."}
-        </Text>
-        <View style={s.actions}>
-          <Pressable
-            style={[s.action, s.actionOutline, { borderColor: c.error }, ocupado && { opacity: 0.5 }]}
-            onPress={confirmarCancelacion}
-            disabled={ocupado}
-            accessibilityRole="button"
-          >
-            <Text style={[s.actionText, { color: c.error }]}>Cancelar solicitud</Text>
-          </Pressable>
-          {horarioVigente && (
-            <Pressable
-              style={[s.action, { backgroundColor: c.accent }, ocupado && { opacity: 0.5 }]}
-              onPress={confirmarAceptar}
-              disabled={ocupado}
-              accessibilityRole="button"
-            >
-              <Text style={[s.actionText, { color: c.accentText }]}>Aceptar horario</Text>
-            </Pressable>
-          )}
-        </View>
-      </>
-    );
-  };
-
-  const renderMensaje = ({ item }: { item: Mensaje }) => {
-    if (item.tipo === "sistema") {
-      return <Text style={[s.systemText, { color: c.textSecondary }]}>{item.texto}</Text>;
-    }
-
-    const mio = item.autor_id === session?.user.id;
-    return (
-      <View
-        style={[
-          s.bubble,
-          mio ? s.bubbleMine : s.bubbleOther,
-          { backgroundColor: mio ? c.accent : c.backgroundElement },
-        ]}
-      >
-        <Text style={[s.bubbleText, { color: mio ? c.accentText : c.text }]}>{item.texto}</Text>
-        <Text style={[s.bubbleTime, { color: mio ? c.accentText : c.textSecondary }]}>
-          {hora(item.created_at)}
-        </Text>
-      </View>
+          },
+        },
+      ]
     );
   };
 
   return (
     <SafeAreaView style={[s.container, { backgroundColor: c.background }]}>
-      <View style={[s.header, { borderBottomColor: c.border }]}>
-        <Pressable
-          style={s.backButton}
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Volver"
-          hitSlop={8}
-        >
+      <View style={s.header}>
+        <Pressable style={s.headerButton} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Volver">
           <Ionicons name="chevron-back" size={28} color={c.text} />
         </Pressable>
-        <View style={s.headerInfo}>
-          <Text style={[s.headerName, { color: c.text }]} numberOfLines={1}>
-            {cita ? nombreOtro(cita) : "Cita"}
-          </Text>
-          {cita && (
-            <Text style={[s.headerDetail, { color: c.textSecondary }]}>
-              {ESTADO_CITA_LABEL[cita.estado]}
-            </Text>
-          )}
-        </View>
+        <Text style={[s.headerTitle, { color: c.text }]}>Detalle de la cita</Text>
+        <View style={s.headerButton} />
       </View>
 
       {cargando ? (
-        <ActivityIndicator style={{ marginTop: 32 }} color={c.accent} />
-      ) : !cita ? (
-        <Text style={[s.notFound, { color: c.textSecondary }]}>No encontramos esta cita.</Text>
+        <View style={s.center}><ActivityIndicator size="large" color={c.accent} /></View>
+      ) : !cita || !cita.fecha_confirmada ? (
+        <View style={s.center}>
+          <Ionicons name="calendar-clear-outline" size={48} color={c.textSecondary} />
+          <Text style={[s.emptyText, { color: c.textSecondary }]}>No encontramos esta cita.</Text>
+        </View>
       ) : (
-        <KeyboardAvoidingView
-          style={s.container}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-        >
-          <View style={[s.panel, { backgroundColor: c.backgroundElement }]}>{panel()}</View>
+        <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+          <View style={s.hero}>
+            <View style={[s.heroIcon, { backgroundColor: `${c.accent}1F` }]}>
+              <Ionicons name="calendar-outline" size={38} color={c.accent} />
+            </View>
+            <Text style={[s.personName, { color: c.text }]}>{nombreOtro(cita)}</Text>
+            <View style={[s.status, { backgroundColor: cita.estado === "cancelada" ? c.backgroundSelected : `${c.accent}26` }]}>
+              <Text style={[s.statusText, { color: cita.estado === "cancelada" ? c.textSecondary : c.accent }]}>{estadoVisual(cita)}</Text>
+            </View>
+          </View>
 
-          <FlatList
-            style={s.list}
-            contentContainerStyle={s.listContent}
-            data={invertidos}
-            keyExtractor={(m) => String(m.id)}
-            renderItem={renderMensaje}
-            inverted
-            keyboardShouldPersistTaps="handled"
-          />
-
-          {abierta ? (
-            <>
-              <Text style={[s.disclaimer, { color: c.textSecondary }]}>
-                Este chat es solo para coordinar tu cita. No es un canal de atención ni de urgencias.
-              </Text>
-
-              {/* Solo informa: el mensaje se puede enviar igual */}
-              {tieneRiesgo(texto) && (
-                <View style={[s.crisis, { borderColor: c.error, backgroundColor: c.backgroundElement }]}>
-                  <Ionicons name="heart-outline" size={18} color={c.error} />
-                  <Text style={[s.crisisText, { color: c.text }]}>
-                    Si estás pasando por un momento difícil, pide ayuda ahora: llama al *4141
-                    (prevención del suicidio, gratis las 24 horas) o al 131 (SAMU) si es una emergencia.
-                  </Text>
-                </View>
-              )}
-
-              <ScrollView
-                horizontal
-                style={s.quickRepliesScroll}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={s.quickReplies}
-                keyboardShouldPersistTaps="handled"
-              >
-                {RESPUESTAS_RAPIDAS[esProfesional ? "profesional" : "paciente"].map((respuesta) => (
-                  <Pressable
-                    key={respuesta}
-                    style={({ pressed }) => [s.quickReply, { borderColor: c.border }, pressed && { opacity: 0.6 }]}
-                    onPress={() => enviar(respuesta)}
-                    disabled={enviando}
-                    accessibilityRole="button"
-                  >
-                    <Text style={[s.quickReplyText, { color: c.text }]}>{respuesta}</Text>
-                  </Pressable>
-                ))}
-              </ScrollView>
-
-              <View style={[s.composer, { borderTopColor: c.border }]}>
-                <TextInput
-                  style={[s.input, { color: c.text, borderColor: c.border }]}
-                  value={texto}
-                  onChangeText={setTexto}
-                  placeholder="Escribe un mensaje"
-                  placeholderTextColor={c.textSecondary}
-                  maxLength={MENSAJE_MAX}
-                  multiline
-                />
-                <Pressable
-                  style={[s.send, { backgroundColor: c.accent }, (!texto.trim() || enviando) && { opacity: 0.5 }]}
-                  onPress={() => enviar()}
-                  disabled={!texto.trim() || enviando}
-                  accessibilityRole="button"
-                  accessibilityLabel="Enviar mensaje"
-                >
-                  <Ionicons name="send" size={18} color={c.accentText} />
-                </Pressable>
+          <View style={[s.card, { backgroundColor: c.backgroundElement }]}>
+            <View style={s.row}>
+              <Ionicons name="calendar-number-outline" size={22} color={c.accent} />
+              <View style={s.rowInfo}>
+                <Text style={[s.label, { color: c.textSecondary }]}>Fecha y hora</Text>
+                <Text style={[s.value, { color: c.text }]}>{fechaHoraTexto(cita.fecha_confirmada)}</Text>
               </View>
-              {texto.length > MENSAJE_MAX - 50 && (
-                <Text style={[s.counter, { color: c.textSecondary }]}>
-                  {texto.length}/{MENSAJE_MAX}
-                </Text>
-              )}
-            </>
-          ) : (
-            <Text style={[s.closed, { color: c.textSecondary, borderTopColor: c.border }]}>
-              El chat se cerró porque la solicitud ya no está pendiente.
-            </Text>
+            </View>
+            <View style={s.row}>
+              <Ionicons name={cita.modalidad === "online" ? "videocam-outline" : "location-outline"} size={22} color={c.accent} />
+              <View style={s.rowInfo}>
+                <Text style={[s.label, { color: c.textSecondary }]}>Modalidad</Text>
+                <Text style={[s.value, { color: c.text }]}>{MODALIDAD_LABEL[cita.modalidad]}</Text>
+              </View>
+            </View>
+            <View style={s.row}>
+              <Ionicons name="time-outline" size={22} color={c.accent} />
+              <View style={s.rowInfo}>
+                <Text style={[s.label, { color: c.textSecondary }]}>Duración</Text>
+                <Text style={[s.value, { color: c.text }]}>{DURACION_CITA_MINUTOS} minutos</Text>
+              </View>
+            </View>
+          </View>
+
+          {cita.motivo_cierre && (
+            <View style={[s.notice, { backgroundColor: c.backgroundElement }]}>
+              <Ionicons name="information-circle-outline" size={20} color={c.textSecondary} />
+              <Text style={[s.noticeText, { color: c.textSecondary }]}>{cita.motivo_cierre}</Text>
+            </View>
           )}
-        </KeyboardAvoidingView>
+
+          {puedeAdministrar && (
+            <View style={s.actions}>
+              <Pressable
+                style={({ pressed }) => [s.primaryButton, { backgroundColor: c.accent }, pressed && { opacity: 0.8 }]}
+                onPress={() => router.push({
+                  pathname: "/professional/appointment-editor",
+                  params: { citaId: cita.id, patientId: cita.paciente_id, name: nombreOtro(cita) },
+                })}
+                accessibilityRole="button"
+              >
+                <Ionicons name="create-outline" size={20} color={c.accentText} />
+                <Text style={[s.primaryButtonText, { color: c.accentText }]}>Modificar cita</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [s.cancelButton, { borderColor: c.error }, pressed && { opacity: 0.7 }]}
+                onPress={confirmarCancelacion}
+                disabled={cancelando}
+                accessibilityRole="button"
+              >
+                {cancelando ? <ActivityIndicator color={c.error} /> : <Text style={[s.cancelButtonText, { color: c.error }]}>Cancelar cita</Text>}
+              </Pressable>
+            </View>
+          )}
+        </ScrollView>
       )}
     </SafeAreaView>
   );

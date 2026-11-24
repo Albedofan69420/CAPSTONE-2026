@@ -13,35 +13,38 @@ type TabOptions = Exclude<
   (...args: never[]) => unknown
 >;
 
-const ICON_SIZE = 28;
-const BAR_MARGIN = 40;
-const PILL_MAX_WIDTH = 110;
+const ICON_SIZE = 27;
+const BAR_MARGIN = 16;
+const PILL_MAX_WIDTH = 112;
 
 /**
  * Estilo de la barra inferior flotante, compartido por el usuario común y el profesional.
  * `visibleTabs` ajusta el ancho del fondo del ícono para que quepan 4 pestañas en pantallas chicas.
  */
-export function useTabBar(visibleTabs = 3, wideTabWeight = 1) {
+export function useTabBar(visibleTabs = 3) {
   const c = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const tabWidth = (width - BAR_MARGIN * 2 - 16) / (visibleTabs - 1 + wideTabWeight);
+  const tabWidth = (width - BAR_MARGIN * 2 - 16) / visibleTabs;
 
-  const tabIcon = (active: IconName, inactive: IconName, label?: string) =>
+  const tabIcon = (active: IconName, inactive: IconName, label: string) =>
     function TabIcon({ color, focused }: { color: ColorValue; focused: boolean }) {
-      const pillWidth = Math.min(PILL_MAX_WIDTH, tabWidth * (label ? wideTabWeight : 1) - (label ? 4 : 8));
+      const pillWidth = Math.min(PILL_MAX_WIDTH, tabWidth - 8);
       return (
-        <View style={[styles.pill, { width: pillWidth }, label && styles.labeledPill, focused && { backgroundColor: `${c.accent}26` }]}>
+        <View style={[styles.pill, { width: pillWidth }, focused && { backgroundColor: `${c.accent}26` }]}>
           <Ionicons
             name={focused ? active : inactive}
             size={ICON_SIZE}
             color={color as string}
           />
-          {label && (
-            <Text style={[styles.label, { color }]} numberOfLines={1} adjustsFontSizeToFit>
-              {label}
-            </Text>
-          )}
+          <Text
+            style={[styles.label, { color }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.78}
+          >
+            {label}
+          </Text>
         </View>
       );
     };
@@ -50,7 +53,7 @@ export function useTabBar(visibleTabs = 3, wideTabWeight = 1) {
     headerShown: false,
     tabBarActiveTintColor: c.accent,
     tabBarInactiveTintColor: c.textSecondary,
-    tabBarLabelStyle: styles.label,
+    tabBarShowLabel: false,
     // Círculo rojo con los mensajes por leer (tabBarBadge en cada pestaña)
     tabBarBadgeStyle: {
       backgroundColor: c.badge,
@@ -66,8 +69,8 @@ export function useTabBar(visibleTabs = 3, wideTabWeight = 1) {
       height: 80,
       borderRadius: 40,
       borderTopWidth: 0,
-      paddingTop: 20,
-      paddingBottom: 10,
+      paddingTop: 8,
+      paddingBottom: 8,
       paddingHorizontal: 8,
       backgroundColor: c.backgroundElement,
       shadowColor: "#000",
@@ -83,18 +86,19 @@ export function useTabBar(visibleTabs = 3, wideTabWeight = 1) {
 
 const styles = StyleSheet.create({
   pill: {
-    height: 55,
-    borderRadius: 20,
+    height: 64,
+    borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
-  },
-  labeledPill: {
-    height: 58,
     paddingHorizontal: 4,
     gap: 2,
+    transform: [{ translateY: 15 }],
   },
   label: {
     fontSize: 12,
+    lineHeight: 15,
     fontWeight: "600",
+    textAlign: "center",
+    width: "100%",
   },
 });

@@ -4,14 +4,13 @@ import { useTabBar } from "@/components/tab-bar";
 import { useCitas } from "@/providers/CitasProvider";
 
 const PSYCHOLOGIST_TAB_LABEL = "Mi psicólogo";
-const PSYCHOLOGIST_TAB_WEIGHT = 1.4;
 
 export default function TabsLayout() {
   // La pestaña aparece cuando el profesional ya agendó al menos una cita.
   const { totalCitas } = useCitas();
   const conCitas = totalCitas > 0;
   // Estilo de la barra compartido con el menú del profesional (src/components/tab-bar.tsx)
-  const { screenOptions, tabIcon } = useTabBar(conCitas ? 4 : 3, PSYCHOLOGIST_TAB_WEIGHT);
+  const { screenOptions, tabIcon } = useTabBar(conCitas ? 4 : 3);
 
   return (
     <Tabs screenOptions={screenOptions}>
@@ -19,7 +18,7 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: "Inicio",
-          tabBarIcon: tabIcon("home", "home-outline"),
+          tabBarIcon: tabIcon("home", "home-outline", "Inicio"),
         }}
       />
 
@@ -28,8 +27,6 @@ export default function TabsLayout() {
         options={{
           title: PSYCHOLOGIST_TAB_LABEL,
           tabBarAccessibilityLabel: PSYCHOLOGIST_TAB_LABEL,
-          tabBarLabel: () => null,
-          tabBarItemStyle: { flex: PSYCHOLOGIST_TAB_WEIGHT },
           tabBarIcon: tabIcon("person-circle", "person-circle-outline", PSYCHOLOGIST_TAB_LABEL),
         }}
       />
@@ -39,7 +36,7 @@ export default function TabsLayout() {
         name="citas"
         options={{
           title: "Citas",
-          tabBarIcon: tabIcon("calendar", "calendar-outline"),
+          tabBarIcon: tabIcon("calendar", "calendar-outline", "Citas"),
           // Se oculta solo el botón. Con href: null, Expo Router 58 trata la pestaña como oculta y
           // redirige a Inicio a quien esté en ella (por ejemplo, mientras carga el resumen de citas)
           tabBarItemStyle: conCitas ? undefined : { display: "none" },
@@ -51,7 +48,7 @@ export default function TabsLayout() {
         name="perfil"
         options={{
           title: "Perfil",
-          tabBarIcon: tabIcon("person", "person-outline"),
+          tabBarIcon: tabIcon("person", "person-outline", "Perfil"),
         }}
       />
     </Tabs>

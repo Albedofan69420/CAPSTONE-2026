@@ -12,7 +12,7 @@ export default function ProfessionalTabsLayout() {
         name="index"
         options={{
           title: "Inicio",
-          tabBarIcon: tabIcon("home", "home-outline"),
+          tabBarIcon: tabIcon("home", "home-outline", "Inicio"),
         }}
       />
 
@@ -20,7 +20,7 @@ export default function ProfessionalTabsLayout() {
         name="patients"
         options={{
           title: "Pacientes",
-          tabBarIcon: tabIcon("people", "people-outline"),
+          tabBarIcon: tabIcon("people", "people-outline", "Pacientes"),
         }}
       />
 
@@ -28,7 +28,7 @@ export default function ProfessionalTabsLayout() {
         name="profile"
         options={{
           title: "Perfil",
-          tabBarIcon: tabIcon("person", "person-outline"),
+          tabBarIcon: tabIcon("person", "person-outline", "Perfil"),
         }}
       />
     </Tabs>

@@ -156,6 +156,26 @@ export default function Inicio() {
             />
           </>
         )}
+
+        <Pressable
+          style={({ pressed }) => [
+            s.helpCard,
+            { backgroundColor: `${c.error}12`, borderColor: c.error },
+            pressed && { opacity: 0.8 },
+          ]}
+          onPress={() => router.push("/help-resources")}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir ayuda y emergencias"
+        >
+          <View style={[s.helpIcon, { backgroundColor: `${c.error}1F` }]}>
+            <Ionicons name="heart-outline" size={27} color={c.error} />
+          </View>
+          <View style={s.helpInfo}>
+            <Text style={[s.helpTitle, { color: c.text }]}>Ayuda y emergencias</Text>
+            <Text style={[s.helpText, { color: c.textSecondary }]}>Líneas chilenas de apoyo, prevención y atención inmediata.</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={21} color={c.textSecondary} />
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );

@@ -67,6 +67,34 @@ export const appStyles = {
     articleSubtitle: {
       fontSize: 13,
     },
+    helpCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      padding: 15,
+      borderRadius: 18,
+      borderWidth: 1,
+      marginTop: 4,
+    },
+    helpIcon: {
+      width: 50,
+      height: 50,
+      borderRadius: 25,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    helpInfo: {
+      flex: 1,
+      gap: 4,
+    },
+    helpTitle: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    helpText: {
+      fontSize: 13,
+      lineHeight: 18,
+    },
   }),
 
   // src/components/emotion-donut.tsx
@@ -770,6 +798,125 @@ export const appStyles = {
       paddingVertical: 5,
       borderRadius: 10,
       overflow: "hidden",
+    },
+  }),
+
+  // src/app/help-resources.tsx
+  helpResources: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      height: 58,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+    },
+    headerButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    content: {
+      paddingHorizontal: 16,
+      paddingTop: 12,
+      paddingBottom: 42,
+      gap: 22,
+    },
+    emergencyNotice: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 11,
+      padding: 15,
+      borderRadius: 16,
+      borderWidth: 1,
+    },
+    emergencyInfo: {
+      flex: 1,
+      gap: 4,
+    },
+    emergencyTitle: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    emergencyText: {
+      fontSize: 13,
+      lineHeight: 19,
+    },
+    intro: {
+      gap: 6,
+    },
+    introTitle: {
+      fontSize: 20,
+      fontWeight: "700",
+    },
+    introText: {
+      fontSize: 14,
+      lineHeight: 21,
+    },
+    list: {
+      gap: 13,
+    },
+    card: {
+      padding: 16,
+      borderRadius: 18,
+      gap: 10,
+    },
+    cardHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
+    icon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    cardTitleGroup: {
+      flex: 1,
+      gap: 2,
+    },
+    cardTitle: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    number: {
+      fontSize: 18,
+      fontWeight: "800",
+    },
+    description: {
+      fontSize: 13,
+      lineHeight: 19,
+    },
+    schedule: {
+      fontSize: 12,
+      fontWeight: "600",
+    },
+    callButton: {
+      height: 44,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      borderRadius: 18,
+      marginTop: 3,
+    },
+    callButtonText: {
+      fontSize: 15,
+      fontWeight: "700",
+    },
+    footer: {
+      fontSize: 11,
+      lineHeight: 16,
+      textAlign: "center",
     },
   }),
 
@@ -2137,6 +2284,111 @@ export const appStyles = {
       alignItems: "center",
       justifyContent: "center",
       borderRadius: 20,
+    },
+    saveButtonText: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    disabled: {
+      opacity: 0.55,
+    },
+  }),
+
+  // src/app/professional/availability.tsx
+  availability: StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      height: 58,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 8,
+    },
+    headerButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    content: {
+      paddingHorizontal: 16,
+      paddingTop: 14,
+      paddingBottom: 42,
+      gap: 18,
+    },
+    notice: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 10,
+      padding: 14,
+      borderRadius: 14,
+    },
+    noticeText: {
+      flex: 1,
+      fontSize: 13,
+      lineHeight: 19,
+    },
+    days: {
+      gap: 10,
+    },
+    dayCard: {
+      padding: 14,
+      borderRadius: 16,
+      gap: 12,
+    },
+    dayHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    dayName: {
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    hoursRow: {
+      flexDirection: "row",
+      alignItems: "flex-end",
+      gap: 8,
+    },
+    hourField: {
+      flex: 1,
+      gap: 6,
+    },
+    label: {
+      fontSize: 12,
+      fontWeight: "600",
+    },
+    input: {
+      height: 44,
+      borderWidth: 1,
+      borderRadius: 11,
+      paddingHorizontal: 12,
+      fontSize: 16,
+      textAlign: "center",
+    },
+    arrow: {
+      marginBottom: 13,
+    },
+    notWorking: {
+      fontSize: 13,
+    },
+    saveButton: {
+      height: 50,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 20,
+      marginTop: 4,
     },
     saveButtonText: {
       fontSize: 16,

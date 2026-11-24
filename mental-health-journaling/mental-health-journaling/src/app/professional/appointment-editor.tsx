@@ -131,7 +131,7 @@ export default function EditorCita() {
 
             <View style={[s.notice, { backgroundColor: c.backgroundElement }]}>
               <Ionicons name="time-outline" size={20} color={c.accent} />
-              <Text style={[s.noticeText, { color: c.textSecondary }]}>La cita tendrá una duración de 60 minutos y aparecerá automáticamente en la cuenta del paciente.</Text>
+              <Text style={[s.noticeText, { color: c.textSecondary }]}>La cita durará 60 minutos, debe estar dentro de tu disponibilidad laboral y aparecerá automáticamente en la cuenta del paciente.</Text>
             </View>
 
             <Pressable

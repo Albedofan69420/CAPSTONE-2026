@@ -71,6 +71,7 @@ function RootNavigator() {
             redirige a la pestaña inicial */}
         <Stack.Screen name="journal" />
         <Stack.Screen name="article" />
+        <Stack.Screen name="help-resources" />
       </Stack.Protected>
 
       {/* Compartidas por el usuario común y el profesional (que además edita su descripción).

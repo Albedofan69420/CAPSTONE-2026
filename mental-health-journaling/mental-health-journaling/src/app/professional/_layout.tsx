@@ -20,6 +20,7 @@ export default function ProfessionalLayout() {
         <Stack.Screen name="appointment-editor" />
         <Stack.Screen name="patient-dashboard" />
         <Stack.Screen name="patient-shared-journals" />
+        <Stack.Screen name="availability" />
       </Stack.Protected>
 
       {/* Sin PIN es el paso de certificados del registro; con PIN se abre desde Perfil */}

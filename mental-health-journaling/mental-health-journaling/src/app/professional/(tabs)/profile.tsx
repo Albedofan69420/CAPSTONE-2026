@@ -40,6 +40,13 @@ const AJUSTES: Ajuste[] = [
     ruta: "/professional/certificates",
   },
   {
+    id: "disponibilidad",
+    titulo: "Disponibilidad laboral",
+    descripcion: "Días y horarios en los que atiendes pacientes",
+    icono: "calendar-outline",
+    ruta: "/professional/availability",
+  },
+  {
     id: "notificaciones",
     titulo: "Notificaciones",
     descripcion: "Avisos sobre tus pacientes y tu cuenta",

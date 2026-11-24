@@ -1,11 +1,10 @@
 import { useRef, useState } from "react";
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TextInputInstance, View,} from "react-native";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/hooks/use-theme";
 import { authStyles as s } from "@/constants/auth-styles";
-import { leerInvitacionPendiente } from "@/lib/vinculaciones";
 
 export default function SignIn() {
   const c = useTheme();
@@ -26,7 +25,7 @@ export default function SignIn() {
     setLoading(true);
     setError(null);
 
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+    const { error: signInError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
@@ -38,11 +37,6 @@ export default function SignIn() {
           : signInError.message
       );
       setLoading(false);
-      return;
-    }
-
-    if (signInData.session && (await leerInvitacionPendiente())) {
-      router.replace("/invitation");
     }
   };
 
@@ -66,7 +60,7 @@ export default function SignIn() {
             ]}
             value={email}
             onChangeText={setEmail}
-            placeholder="nombre@correo.com"
+            placeholder="Tu correo electrónico"
             placeholderTextColor={c.textSecondary}
             autoCapitalize="none"
             autoComplete="email"

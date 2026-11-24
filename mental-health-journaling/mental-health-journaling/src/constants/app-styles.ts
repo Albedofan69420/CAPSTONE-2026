@@ -93,6 +93,7 @@ export const appStyles = {
     },
     centerLabel: {
       fontSize: 13,
+      textAlign: "center",
     },
     legend: {
       gap: 4,

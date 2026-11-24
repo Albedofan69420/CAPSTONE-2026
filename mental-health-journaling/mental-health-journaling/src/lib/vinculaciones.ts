@@ -94,13 +94,27 @@ export async function guardarInvitacionPendiente(credencial: CredencialInvitacio
   await AsyncStorage.setItem(INVITACION_PENDIENTE_KEY, JSON.stringify(credencial));
 }
 
-export async function leerInvitacionPendiente() {
+async function leerInvitacionPendiente() {
   const raw = await AsyncStorage.getItem(INVITACION_PENDIENTE_KEY);
   if (!raw) return null;
   try {
     return JSON.parse(raw) as CredencialInvitacion;
   } catch {
     await AsyncStorage.removeItem(INVITACION_PENDIENTE_KEY);
+    return null;
+  }
+}
+
+/** Reanuda solo invitaciones que el paciente autenticado aún puede aceptar. */
+export async function obtenerInvitacionPendienteValida() {
+  try {
+    const credencial = await leerInvitacionPendiente();
+    if (!credencial?.token && !credencial?.codigo) return null;
+
+    await verInvitacionPaciente(credencial);
+    return credencial;
+  } catch {
+    // Una invitación usada, vencida o inaccesible no debe impedir el acceso al inicio.
     return null;
   }
 }

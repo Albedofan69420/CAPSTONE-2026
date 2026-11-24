@@ -35,6 +35,7 @@ const EMOTION_COLORS: Record<"light" | "dark", Record<EmotionId, string>> = {
 const SIZE = 200;
 const STROKE = 26;
 const RADIUS = (SIZE - STROKE) / 2;
+const CENTER_LABEL_WIDTH = Math.floor((SIZE - 2 * STROKE) * 0.7);
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 // Separación entre segmentos, del color de la tarjeta
 const GAP = 2;
@@ -108,12 +109,17 @@ export function EmotionDonut({ emociones, emptyText }: Props) {
         </Svg>
 
         <View style={s.center} pointerEvents="none">
-          <Text style={s.centerEmoji}>{destacada.emoji}</Text>
-          <Text style={[s.centerValue, { color: c.text }]}>
+          <Text style={s.centerEmoji} maxFontSizeMultiplier={1.2}>{destacada.emoji}</Text>
+          <Text style={[s.centerValue, { color: c.text }]} maxFontSizeMultiplier={1.2}>
             {porcentaje(destacada.cantidad)}%
           </Text>
-          <Text style={[s.centerLabel, { color: c.textSecondary }]}>
-            {seleccion ? destacada.label : `Más frecuente: ${destacada.label}`}
+          <Text
+            style={[s.centerLabel, { color: c.textSecondary, width: CENTER_LABEL_WIDTH }]}
+            numberOfLines={seleccion ? 1 : 2}
+            adjustsFontSizeToFit
+            maxFontSizeMultiplier={1.2}
+          >
+            {seleccion ? destacada.label : `Más frecuente:\n${destacada.label}`}
           </Text>
         </View>
       </View>

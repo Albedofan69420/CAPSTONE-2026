@@ -15,9 +15,10 @@ type Props = {
   /**Regresa el pin escrito. Está completo cuando el largo sea = a length */
   onChange: (pin: string) => void;
   autoFocus?: boolean;
+  accessibilityLabel?: string;
 };
 
-export function PinInput({ length = PIN_LENGTH, onChange, autoFocus = true }: Props) {
+export function PinInput({ length = PIN_LENGTH, onChange, autoFocus = true, accessibilityLabel }: Props) {
   const c = useTheme();
   const inputs = useRef<(TextInputInstance | null)[]>([]);
   const [digits, setDigits] = useState<string[]>(Array(length).fill(""));
@@ -80,7 +81,7 @@ export function PinInput({ length = PIN_LENGTH, onChange, autoFocus = true }: Pr
           autoFocus={autoFocus && index === 0}
           selectTextOnFocus
           textAlign="center"
-          accessibilityLabel={`Dígito ${index + 1} de ${length}`}
+          accessibilityLabel={`${accessibilityLabel ? `${accessibilityLabel}, ` : ""}dígito ${index + 1} de ${length}`}
         />
       ))}
     </View>

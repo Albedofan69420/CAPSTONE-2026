@@ -32,7 +32,7 @@ const fechaExpiracion = (fecha: string) =>
 export default function AceptarInvitacion() {
   const c = useTheme();
   const { session, hasPin, locked } = useAuth();
-  const { token } = useLocalSearchParams<{ token?: string }>();
+  const { token, codigo: codigoPendiente } = useLocalSearchParams<{ token?: string; codigo?: string }>();
   const [codigo, setCodigo] = useState("");
   const [vista, setVista] = useState<VistaInvitacion | null>(null);
   const [credencial, setCredencial] = useState<CredencialInvitacion | null>(null);
@@ -40,7 +40,7 @@ export default function AceptarInvitacion() {
   const [aceptando, setAceptando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [completada, setCompletada] = useState(false);
-  const enlaceConsultado = useRef<string | null>(null);
+  const invitacionConsultada = useRef<string | null>(null);
 
   const esProfesional = session?.user.user_metadata.tipo_usuario === "profesional";
   const esAdmin = session?.user.app_metadata.rol === "admin";
@@ -70,10 +70,16 @@ export default function AceptarInvitacion() {
   };
 
   useEffect(() => {
-    if (!puedeUsar || !tokenEnlace || enlaceConsultado.current === tokenEnlace) return;
-    enlaceConsultado.current = tokenEnlace;
-    consultar({ token: tokenEnlace });
-  }, [puedeUsar, tokenEnlace]);
+    if (!puedeUsar) return;
+    const codigoGuardado = typeof codigoPendiente === "string" ? codigoPendiente : null;
+    const identificador = tokenEnlace ?? codigoGuardado;
+    if (!identificador || invitacionConsultada.current === identificador) return;
+    const timer = setTimeout(() => {
+      invitacionConsultada.current = identificador;
+      void consultar(tokenEnlace ? { token: tokenEnlace } : { codigo: identificador });
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [puedeUsar, tokenEnlace, codigoPendiente]);
 
   const consultarCodigo = () => {
     if (codigo.length !== 8) {

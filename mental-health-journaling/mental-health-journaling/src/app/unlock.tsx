@@ -7,7 +7,7 @@ import { authStyles as s } from "@/constants/auth-styles";
 import { useTheme } from "@/hooks/use-theme";
 import { PIN_LENGTH, removePin, verifyPin } from "@/lib/pin";
 import { supabase } from "@/lib/supabase";
-import { leerInvitacionPendiente } from "@/lib/vinculaciones";
+import { obtenerInvitacionPendienteValida } from "@/lib/vinculaciones";
 import { useAuth } from "@/providers/AuthProvider";
 
 const MAX_ATTEMPTS = 5;
@@ -33,9 +33,11 @@ export default function Desbloquear() {
     const ok = await verifyPin(session.user.id, pin);
 
     if (ok) {
-      const invitacionPendiente = await leerInvitacionPendiente();
+      const invitacionPendiente = await obtenerInvitacionPendienteValida();
       unlock();
-      if (invitacionPendiente) router.replace("/invitation");
+      if (invitacionPendiente) {
+        router.replace({ pathname: "/invitation", params: invitacionPendiente });
+      }
       return;
     }
 

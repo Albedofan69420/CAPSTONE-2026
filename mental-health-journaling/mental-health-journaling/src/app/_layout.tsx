@@ -47,9 +47,6 @@ function RootNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* La invitación puede abrirse desde un enlace antes o después de iniciar sesión. */}
-      <Stack.Screen name="invitation" />
-
       <Stack.Protected guard={!session} redirectTo={destino}>
         <Stack.Screen name="(auth)" />
       </Stack.Protected>
@@ -81,6 +78,8 @@ function RootNavigator() {
       <Stack.Protected guard={isReady && !isAdmin} redirectTo={destino}>
         <Stack.Screen name="personal-data" />
         <Stack.Screen name="privacy-security" />
+        <Stack.Screen name="change-password" />
+        <Stack.Screen name="change-pin" />
         {/* Chat de la reserva: el profesional llega desde Pacientes y el usuario desde Citas */}
         <Stack.Screen name="cita" />
       </Stack.Protected>
@@ -88,6 +87,9 @@ function RootNavigator() {
       <Stack.Protected guard={isReady && isAdmin} redirectTo={destino}>
         <Stack.Screen name="admin" />
       </Stack.Protected>
+
+      {/* Admite enlaces directos sin ser la primera pantalla disponible al desbloquear. */}
+      <Stack.Screen name="invitation" />
     </Stack>
   );
 }

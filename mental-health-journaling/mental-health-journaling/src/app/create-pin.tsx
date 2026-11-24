@@ -6,7 +6,7 @@ import { PinInput } from "@/components/pin-input";
 import { authStyles as s } from "@/constants/auth-styles";
 import { useTheme } from "@/hooks/use-theme";
 import { PIN_LENGTH, savePin } from "@/lib/pin";
-import { leerInvitacionPendiente } from "@/lib/vinculaciones";
+import { obtenerInvitacionPendienteValida } from "@/lib/vinculaciones";
 import { useAuth } from "@/providers/AuthProvider";
 
 export default function CrearPin() {
@@ -45,10 +45,12 @@ export default function CrearPin() {
 
     setSaving(true);
     await savePin(session.user.id, pin);
-    const invitacionPendiente = await leerInvitacionPendiente();
+    const invitacionPendiente = await obtenerInvitacionPendienteValida();
     //Con el PIN guardado, el layout lleva al usuario a las pestañas de (tabs)
     pinCreated();
-    if (invitacionPendiente) router.replace("/invitation");
+    if (invitacionPendiente) {
+      router.replace({ pathname: "/invitation", params: invitacionPendiente });
+    }
   };
 
   return (

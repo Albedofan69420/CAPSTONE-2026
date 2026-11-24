@@ -1,5 +1,5 @@
 import { ComponentProps } from "react";
-import { ColorValue, StyleSheet, useWindowDimensions, View } from "react-native";
+import { ColorValue, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,21 +21,27 @@ const PILL_MAX_WIDTH = 110;
  * Estilo de la barra inferior flotante, compartido por el usuario común y el profesional.
  * `visibleTabs` ajusta el ancho del fondo del ícono para que quepan 4 pestañas en pantallas chicas.
  */
-export function useTabBar(visibleTabs = 3) {
+export function useTabBar(visibleTabs = 3, wideTabWeight = 1) {
   const c = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const pillWidth = Math.min(PILL_MAX_WIDTH, (width - BAR_MARGIN * 2 - 16) / visibleTabs - 8);
+  const tabWidth = (width - BAR_MARGIN * 2 - 16) / (visibleTabs - 1 + wideTabWeight);
 
-  const tabIcon = (active: IconName, inactive: IconName) =>
+  const tabIcon = (active: IconName, inactive: IconName, label?: string) =>
     function TabIcon({ color, focused }: { color: ColorValue; focused: boolean }) {
+      const pillWidth = Math.min(PILL_MAX_WIDTH, tabWidth * (label ? wideTabWeight : 1) - (label ? 4 : 8));
       return (
-        <View style={[styles.pill, { width: pillWidth }, focused && { backgroundColor: `${c.accent}26` }]}>
+        <View style={[styles.pill, { width: pillWidth }, label && styles.labeledPill, focused && { backgroundColor: `${c.accent}26` }]}>
           <Ionicons
             name={focused ? active : inactive}
             size={ICON_SIZE}
             color={color as string}
           />
+          {label && (
+            <Text style={[styles.label, { color }]} numberOfLines={1} adjustsFontSizeToFit>
+              {label}
+            </Text>
+          )}
         </View>
       );
     };
@@ -44,10 +50,7 @@ export function useTabBar(visibleTabs = 3) {
     headerShown: false,
     tabBarActiveTintColor: c.accent,
     tabBarInactiveTintColor: c.textSecondary,
-    tabBarLabelStyle: {
-      fontSize: 12,
-      fontWeight: "600",
-    },
+    tabBarLabelStyle: styles.label,
     // Círculo rojo con los mensajes por leer (tabBarBadge en cada pestaña)
     tabBarBadgeStyle: {
       backgroundColor: c.badge,
@@ -84,5 +87,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
+  },
+  labeledPill: {
+    height: 58,
+    paddingHorizontal: 4,
+    gap: 2,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: "600",
   },
 });
